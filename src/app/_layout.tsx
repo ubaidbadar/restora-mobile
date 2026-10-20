@@ -1,18 +1,49 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
+import '@/global.css';
+import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import Snackbar from '@/components/snackbar';
+import ThemeRoot from '@/hoc/theme_root';
+import useAuthStore from '@/store/auth_store';
+import startApp from '@/utils/start_app';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+void SplashScreen.preventAutoHideAsync();
+startApp();
 
-SplashScreen.preventAutoHideAsync();
+/**
+ * Who sees what. Nobody signed in: sign in. Signed in without a restaurant, or the owner before the first-run setup:
+ * the start screens. Everyone else: the app. The splash stays up until `/me` is known.
+ */
+export default function RootLayout() {
+  const me = useAuthStore((state) => state.me);
+  // Light icons on dark screens, dark on light (Uniwind.setTheme changes the scheme, so a pinned theme counts too).
+  const scheme = useColorScheme();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  useEffect(() => {
+    if (me !== undefined) void SplashScreen.hideAsync();
+  }, [me]);
+
+  if (me === undefined) return null;
+  const workplace = me?.workplace;
+  const ready = Boolean(workplace) && !(workplace?.isPrimaryOwner && !workplace.settings.taxSet);
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <ThemeRoot>
+      <Stack screenOptions={{ headerShown: false, statusBarStyle: scheme === 'dark' ? 'light' : 'dark' }}>
+        <Stack.Protected guard={!me}>
+          <Stack.Screen name="(auth)" />
+        </Stack.Protected>
+        <Stack.Protected guard={Boolean(me) && !ready}>
+          <Stack.Screen name="(start)" />
+        </Stack.Protected>
+        <Stack.Protected guard={ready}>
+          <Stack.Screen name="(app)" />
+          {/* Above the tabs: taking an order gets the whole screen (app/order/_layout). */}
+          <Stack.Screen name="order" />
+        </Stack.Protected>
+      </Stack>
+      <Snackbar />
+    </ThemeRoot>
   );
 }

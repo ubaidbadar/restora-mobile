@@ -1,3 +1,5 @@
+**Read `MOBILE_RULES.md` and `PLAN.md` first: they are this app's rules and UX plan. `STATUS.md` says what is done.**
+
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
 ## Expo has changed — do not trust your training data

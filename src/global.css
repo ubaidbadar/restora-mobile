@@ -1,9 +1,194 @@
-:root {
-  --font-display:
-    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-    Segoe UI Symbol, Noto Color Emoji;
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
+@import 'tailwindcss';
+@import 'uniwind';
+
+/*
+ * Design tokens: the same names as the web app (../web/src/index.css), each with a light and a dark value.
+ * Components use only these roles (bg-surface, text-ink, border-border, accent-muted …), never raw colors.
+ * Dark values keep the same contrast as light ones: text tones (600–800) get lighter, tints (50–200) get darker,
+ * so `bg-danger-50 text-danger-700` reads well in both.
+ */
+@theme {
+  --color-canvas: #F6F7F9;
+  --color-surface: #FFFFFF;
+  --color-sunken: #F1F3F6;
+  --color-hover: #EBEEF2;
+  --color-scrim: rgb(15 23 42 / 0.25);
+  --color-ink: #0F172A;
+  --color-body: #334155;
+  --color-muted: #5B6474;
+  --color-subtle: #6B7280;
+  --color-border: #E5E7EB;
+  --color-border-strong: #848D9C;
+  --color-primary: #4F46E5;
+  --color-primary-hover: #4338CA;
+  --color-primary-soft: #EEF2FF;
+  --color-on-primary: #FFFFFF;
+  --color-accent-text: #4338CA;
+  --color-danger-50: #FCEFEC;
+  --color-danger-100: #F8DED8;
+  --color-danger-200: #EFC0B6;
+  --color-danger-500: #C24A35;
+  --color-danger-600: #B54531;
+  --color-danger-700: #A3301F;
+  --color-danger-800: #84261A;
+  --color-success-50: #EDF6F0;
+  --color-success-100: #E0EFE5;
+  --color-success-200: #BFDDC9;
+  --color-success-500: #2E8A56;
+  --color-success-600: #257447;
+  --color-success-700: #1F6B43;
+  --color-success-800: #185535;
+  --color-warning-50: #FDF5E4;
+  --color-warning-100: #FAEAC4;
+  --color-warning-200: #F1D392;
+  --color-warning-500: #B57B0C;
+  --color-warning-600: #9A6705;
+  --color-warning-700: #8F5A00;
+  --color-warning-800: #7A4B00;
+  --color-info-50: #EDF3FA;
+  --color-info-100: #DCE8F5;
+  --color-info-200: #BCD2EA;
+  --color-info-500: #3B6FA6;
+  --color-info-600: #33639A;
+  --color-info-700: #2B5A8A;
+  --color-info-800: #22476D;
+  --color-whatsapp: #1DA851;
+  /* On `bg-ink` (the snackbar, which inverts the page): an action's color. */
+  --color-inverse-primary: #A5B4FC;
+  /* Drawings only (icons/), never controls or text. */
+  --color-art-sand: #F2E2C4;
+  --color-art-rice: #F5D48A;
+  --color-art-saffron: #E39B2D;
+  --color-art-chili: #D4543A;
+  --color-art-leaf: #3F9A62;
+  --color-art-chat: #D9F2E1;
+
+  --radius-pill: 9999px;
+  --radius-panel: 16px;
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --radius-small: 6px;
+  --radius-chip: 4px;
+
+  /* Order tokens and grand totals; dashboard numbers; card and section headings. */
+  --text-display: 28px;
+  --text-display--line-height: 34px;
+  --text-metric: 22px;
+  --text-metric--line-height: 28px;
+  --text-heading: 17px;
+  --text-heading--line-height: 24px;
+}
+
+@layer theme {
+  :root {
+    @variant light {
+      --color-canvas: #F6F7F9;
+      --color-surface: #FFFFFF;
+      --color-sunken: #F1F3F6;
+      --color-hover: #EBEEF2;
+      --color-scrim: rgb(15 23 42 / 0.25);
+      --color-ink: #0F172A;
+      --color-body: #334155;
+      --color-muted: #5B6474;
+      --color-subtle: #6B7280;
+      --color-border: #E5E7EB;
+      --color-border-strong: #848D9C;
+      --color-primary: #4F46E5;
+      --color-primary-hover: #4338CA;
+      --color-primary-soft: #EEF2FF;
+      --color-on-primary: #FFFFFF;
+      --color-accent-text: #4338CA;
+      --color-danger-50: #FCEFEC;
+      --color-danger-100: #F8DED8;
+      --color-danger-200: #EFC0B6;
+      --color-danger-500: #C24A35;
+      --color-danger-600: #B54531;
+      --color-danger-700: #A3301F;
+      --color-danger-800: #84261A;
+      --color-success-50: #EDF6F0;
+      --color-success-100: #E0EFE5;
+      --color-success-200: #BFDDC9;
+      --color-success-500: #2E8A56;
+      --color-success-600: #257447;
+      --color-success-700: #1F6B43;
+      --color-success-800: #185535;
+      --color-warning-50: #FDF5E4;
+      --color-warning-100: #FAEAC4;
+      --color-warning-200: #F1D392;
+      --color-warning-500: #B57B0C;
+      --color-warning-600: #9A6705;
+      --color-warning-700: #8F5A00;
+      --color-warning-800: #7A4B00;
+      --color-info-50: #EDF3FA;
+      --color-info-100: #DCE8F5;
+      --color-info-200: #BCD2EA;
+      --color-info-500: #3B6FA6;
+      --color-info-600: #33639A;
+      --color-info-700: #2B5A8A;
+      --color-info-800: #22476D;
+      --color-whatsapp: #1DA851;
+      --color-inverse-primary: #A5B4FC;
+      --color-art-sand: #F2E2C4;
+      --color-art-rice: #F5D48A;
+      --color-art-saffron: #E39B2D;
+      --color-art-chili: #D4543A;
+      --color-art-leaf: #3F9A62;
+      --color-art-chat: #D9F2E1;
+    }
+
+    @variant dark {
+      --color-canvas: #0B0F19;
+      --color-surface: #151B28;
+      --color-sunken: #1C2333;
+      --color-hover: #252D40;
+      --color-scrim: rgb(0 0 0 / 0.6);
+      --color-ink: #F1F5F9;
+      --color-body: #CBD5E1;
+      --color-muted: #9AA4B5;
+      --color-subtle: #8B95A7;
+      --color-border: #2A3347;
+      --color-border-strong: #6B7486;
+      --color-primary: #6D6AF5;
+      --color-primary-hover: #5B57EE;
+      --color-primary-soft: #232055;
+      --color-on-primary: #FFFFFF;
+      --color-accent-text: #B4B2FF;
+      --color-danger-50: #2B1512;
+      --color-danger-100: #3B1C17;
+      --color-danger-200: #5C2A21;
+      --color-danger-500: #E0664F;
+      --color-danger-600: #EA7A64;
+      --color-danger-700: #F29A87;
+      --color-danger-800: #F7B9AC;
+      --color-success-50: #0F2219;
+      --color-success-100: #143024;
+      --color-success-200: #1E4A35;
+      --color-success-500: #3FAE6E;
+      --color-success-600: #5BC285;
+      --color-success-700: #7FD3A0;
+      --color-success-800: #A6E2BD;
+      --color-warning-50: #2A2108;
+      --color-warning-100: #3A2C0A;
+      --color-warning-200: #5A4410;
+      --color-warning-500: #D69A1F;
+      --color-warning-600: #E3AD3F;
+      --color-warning-700: #EDC065;
+      --color-warning-800: #F5D592;
+      --color-info-50: #0F1B2B;
+      --color-info-100: #15253A;
+      --color-info-200: #1F3755;
+      --color-info-500: #5B8FCB;
+      --color-info-600: #75A3D6;
+      --color-info-700: #94B9E2;
+      --color-info-800: #B6CFEC;
+      --color-whatsapp: #25D366;
+      --color-inverse-primary: #4338CA;
+      --color-art-sand: #3A3122;
+      --color-art-rice: #E8C46E;
+      --color-art-saffron: #E39B2D;
+      --color-art-chili: #D9614A;
+      --color-art-leaf: #4FAE72;
+      --color-art-chat: #1F3B2B;
+    }
+  }
 }
