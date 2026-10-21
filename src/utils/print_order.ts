@@ -68,8 +68,8 @@ export default async function printOrder(order: Order, kind: 'kitchen' | 'receip
 
     const header = isReceipt
       ? [
-          settings?.logo && `<img class="logo" src="${escape(settings.logo)}" alt="">`,
-          `<p class="name">${escape(settings?.restaurantName ?? '')}</p>`,
+          workplace?.restaurant.logo && `<img class="logo" src="${escape(workplace.restaurant.logo)}" alt="">`,
+          `<p class="name">${escape(workplace?.restaurant.name ?? '')}</p>`,
           branch &&
             `<p class="small">${escape(join([branch.name, branch.address, branch.area, branch.city], ', '))}</p>`,
           branch?.phone && `<p class="small">${escape(branch.phone)}</p>`,

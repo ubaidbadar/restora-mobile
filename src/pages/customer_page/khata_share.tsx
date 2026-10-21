@@ -16,7 +16,7 @@ interface KhataShareProps {
 
 /** The last ten khata lines and the balance, ready to send on WhatsApp; or the whole statement as a PDF to share. */
 export default function KhataShare({ customer, entries }: KhataShareProps) {
-  const restaurantName = useAuthStore((state) => state.me?.workplace?.settings.restaurantName ?? '');
+  const restaurantName = useAuthStore((state) => state.me?.workplace?.restaurant.name ?? '');
   const lines = entries
     .slice(0, 10)
     .reverse()

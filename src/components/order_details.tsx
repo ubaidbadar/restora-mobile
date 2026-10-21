@@ -39,7 +39,7 @@ function receiptText(order: Order, restaurantName: string): string {
 
 /** Everything about one order: what was ordered, what it cost, how it is being paid; print or send the receipt. */
 export default function OrderDetails({ order }: { order: Order }) {
-  const restaurantName = useAuthStore((state) => state.me?.workplace?.settings.restaurantName ?? '');
+  const restaurantName = useAuthStore((state) => state.me?.workplace?.restaurant.name ?? '');
   const customer = order.customer;
   const where = [order.tableName && `Table ${order.tableName}`, order.area, order.address, order.rider && `Rider: ${order.rider}`].filter(Boolean).join(' · ');
 

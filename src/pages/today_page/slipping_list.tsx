@@ -9,7 +9,7 @@ import formatAgo from '@/utils/format_ago';
 
 /** Good customers who have not ordered for 30 days, biggest spenders first, each one tap from a WhatsApp nudge. */
 export default function SlippingList({ customers, total }: { customers: Customer[]; total: number }) {
-  const settings = useAuthStore((state) => state.me!.workplace!.settings);
+  const workplace = useAuthStore((state) => state.me!.workplace!);
 
   return (
     <View className="gap-1 rounded-card border border-border bg-surface p-4">
@@ -32,7 +32,7 @@ export default function SlippingList({ customers, total }: { customers: Customer
             </Text>
             <Text className="text-sm text-muted">Last order {formatAgo(customer.lastOrderAt).toLowerCase()}</Text>
           </Pressable>
-          <WhatsAppLink phone={customer.phone} message={fillTemplate(settings.whatsappTemplates.winback, { name: customer.name, restaurant: settings.restaurantName })}>
+          <WhatsAppLink phone={customer.phone} message={fillTemplate(workplace.settings.whatsappTemplates.winback, { name: customer.name, restaurant: workplace.restaurant.name })}>
             Send a message
           </WhatsAppLink>
         </View>
