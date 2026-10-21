@@ -59,7 +59,7 @@ export default function ReservationRow({ reservation, onSaved }: ReservationRowP
       date: formatDay(reservation.dateTime),
       time: formatTime(reservation.dateTime),
       party: reservation.partySize,
-      restaurant: settings?.restaurantName ?? '',
+      restaurant: workplace?.restaurant.name ?? '',
     });
     void Linking.openURL(waLink(phone!, text));
   };

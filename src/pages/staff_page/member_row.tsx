@@ -30,8 +30,9 @@ interface MemberRowProps {
  * suspend or reactivate, remove. Nobody changes themselves here, and owners are changed only by owners.
  */
 export default function MemberRow({ member, roles, onSaved, onRemoved }: MemberRowProps) {
-  const workplace = useAuthStore((state) => state.me?.workplace);
-  const isMe = member._id === workplace?.membershipId;
+  const me = useAuthStore((state) => state.me);
+  const workplace = me?.workplace;
+  const isMe = member.userId === me?.user.id;
   const name = nameCase(member.user?.name ?? 'Someone');
   const canManage = can(workplace, 'staff:manage') && !isMe && !member.isPrimaryOwner && (!member.isOwner || Boolean(workplace?.isOwner));
   const roleNames = member.roleIds.flatMap((id) => roles.find((role) => role._id === id)?.name ?? []);
