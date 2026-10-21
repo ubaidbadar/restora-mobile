@@ -1,10 +1,14 @@
+import { useEffect } from 'react';
 import { View } from 'react-native';
 import PageHeader from '@/components/page_header';
 import TabScreen from '@/components/tab_screen';
 import RequirePermission from '@/hoc/require_permission';
 import SkeletonList from '@/components/skeleton_list';
 import useGet from '@/hooks/useGet';
+import getCache from '@/store/get_cache';
 import type Order from '@/types/order';
+import dayKey from '@/utils/day_key';
+import listenOrders from '@/utils/listen_orders';
 import upsertById from '@/utils/upsert_by_id';
 import BoardWithOutbox from './board_with_outbox';
 
@@ -19,9 +23,20 @@ export default function OrdersPage() {
   );
 }
 
-/** Today's orders of the working branch: new, preparing, ready, on the way, done. */
+/** Today's orders of the working branch: new, preparing, ready, on the way, done. Kept live from the server's stream. */
 function OrdersBoardScreen() {
   const { data: orders = [], loading, refreshing, update, get } = useGet<Order[]>('/orders');
+
+  // Orders placed or changed on another device show up as they happen. Only today's belong on the board; after a break
+  // in the stream the board loads again for what came in between.
+  useEffect(
+    () =>
+      listenOrders(
+        (order) => order.dayKey === dayKey() && getCache.update<Order[]>(getCache.keyOf('/orders'), (list) => (list ? upsertById(list, order) : list)),
+        () => get()
+      ),
+    [get]
+  );
 
   // New order is the + in the middle of the tab bar.
   const header = <PageHeader title="Orders" />;

@@ -6,6 +6,7 @@ import type SubmitProps from '@/types/submit_props';
 import printOrder from '@/utils/print_order';
 import syncOutbox from '@/utils/sync_outbox';
 import toast from '@/utils/toast';
+import upsertById from '@/utils/upsert_by_id';
 import offlineOrder from './offline_order';
 import offlineToken from './offline_token';
 
@@ -30,7 +31,8 @@ export default function saveOrder({ data, onSuccess, onError }: SubmitProps) {
   api
     .post<Order>('/orders', body)
     .then((res) => {
-      getCache.update<Order[]>(getCache.keyOf('/orders'), (list) => (list ? [res.data, ...list] : list));
+      // The board may already have it, sent live by the server.
+      getCache.update<Order[]>(getCache.keyOf('/orders'), (list) => (list ? upsertById(list, res.data) : list));
       finish(`Order #${res.data.dailyToken} placed`, res.data);
     })
     .catch((err) => (err.response ? onError(err) : (saveOffline(), void syncOutbox())));
