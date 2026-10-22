@@ -1,4 +1,4 @@
-import { Link, useFocusEffect } from 'expo-router';
+import { Link } from 'expo-router';
 import { View } from 'react-native';
 import PageHeader from '@/components/page_header';
 import TabScreen from '@/components/tab_screen';
@@ -11,18 +11,10 @@ import getAxiosMessage from '@/utils/get_axios_message';
 import toast from '@/utils/toast';
 import TablesView from './tables_view';
 
-/** How often the floor is read again while this tab is open, so new guest calls show up. */
-const REFRESH_MS = 30_000;
-
 /** The branch's tables: each table and what it needs now, guest calls on top. Scan a table's QR to take its order. */
 export default function TablesPage() {
+  // Guests' calls and table orders arrive live (`components/live_updates`); pulling down loads the floor again.
   const { data: all = [], loading, refreshing, update, get } = useGet<FloorTable[]>('/tables/floor');
-
-  // Guests call from the QR menu at any time: while the tab is in view, look again now and then.
-  useFocusEffect(() => {
-    const timer = setInterval(() => get(), REFRESH_MS);
-    return () => clearInterval(timer);
-  });
 
   const answer = (requestId: string) =>
     api

@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCSSVariable } from 'uniwind';
 import type Workplace from '@shared/workplace';
 import can from '@shared/can';
+import LiveUpdates from '@/components/live_updates';
 import NewOrderTabButton from '@/components/new_order_tab_button';
 import TabBarButton from '@/components/tab_bar_button';
 import TAB_BAR_HEIGHT from '@/constants/tab_bar_height';
@@ -31,6 +32,7 @@ export default function AppTabs({ workplace }: { workplace: Workplace }) {
     <Tabs style={{ flex: 1, backgroundColor: canvas }} options={{ backBehavior: 'history' }}>
       {/* The bar floats over the screens; their lists leave room for it at the end (pb-32). */}
       <TabSlot />
+      {can(workplace, 'orders:view') && <LiveUpdates key={workplace.branch?._id} />}
       <TabList asChild>
         <View style={{ height: TAB_BAR_HEIGHT, bottom: Math.max(bottom - 12, 12) }} className="absolute inset-x-3 flex-row items-stretch rounded-panel border border-border bg-surface shadow-lg">
           {inBar.slice(0, 2).map(trigger)}
