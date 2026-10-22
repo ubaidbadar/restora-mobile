@@ -16,6 +16,8 @@ export default function WorkplaceSection() {
   const me = useAuthStore((state) => state.me);
   const workplace = me?.workplace;
   if (!me || !workplace) return null;
+  // Suspended ones and those being deleted cannot be opened.
+  const openable = me.restaurants.filter((r) => !r.status);
 
   const switchTo = (url: '/me/workplace' | '/me/branch', body: object, done: string, close: () => void) => {
     close();
@@ -45,8 +47,8 @@ export default function WorkplaceSection() {
 
   return (
     <>
-      <Sheet title="Restaurant" component={({ open }) => <MoreRow first icon="storefront-outline" label="Restaurant" value={workplace.restaurant.name} onPress={me.restaurants.length > 1 ? open : undefined} />}>
-        {({ close }) => choices(me.restaurants, workplace.restaurant._id, (item) => switchTo('/me/workplace', { restaurantId: item._id }, `Now working at ${item.name}`, close))}
+      <Sheet title="Restaurant" component={({ open }) => <MoreRow first icon="storefront-outline" label="Restaurant" value={workplace.restaurant.name} onPress={openable.length > 1 ? open : undefined} />}>
+        {({ close }) => choices(openable, workplace.restaurant._id, (item) => switchTo('/me/workplace', { restaurantId: item._id }, `Now working at ${item.name}`, close))}
       </Sheet>
       <Sheet title="Branch" component={({ open }) => <MoreRow icon="business-outline" label="Branch" value={workplace.branch?.name ?? 'None open'} onPress={workplace.branches.length > 1 ? open : undefined} />}>
         {({ close }) => choices(workplace.branches, workplace.branch?._id, (item) => switchTo('/me/branch', { branchId: item._id }, `Now at ${item.name}`, close))}
