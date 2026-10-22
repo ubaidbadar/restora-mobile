@@ -70,6 +70,9 @@
   --radius-small: 6px;
   --radius-chip: 4px;
 
+  --font-sans: 'InstrumentSans-Regular';
+  --font-display: 'BricolageGrotesque-Bold';
+
   /* Order tokens and grand totals; dashboard numbers; card and section headings. */
   --text-display: 28px;
   --text-display--line-height: 34px;
@@ -77,6 +80,82 @@
   --text-metric--line-height: 28px;
   --text-heading: 17px;
   --text-heading--line-height: 24px;
+}
+
+/* Typography: Instrument Sans for body text, Bricolage Grotesque for display headings */
+@utility font-sans {
+  font-family: 'InstrumentSans-Regular';
+}
+@utility font-display {
+  font-family: 'BricolageGrotesque-Bold';
+}
+@utility font-display-semibold {
+  font-family: 'BricolageGrotesque-SemiBold';
+}
+
+@utility text-xs {
+  font-size: 12px;
+  line-height: 16px;
+  font-family: 'InstrumentSans-Regular';
+}
+@utility text-sm {
+  font-size: 14px;
+  line-height: 20px;
+  font-family: 'InstrumentSans-Regular';
+}
+@utility text-base {
+  font-size: 16px;
+  line-height: 24px;
+  font-family: 'InstrumentSans-Regular';
+}
+@utility text-lg {
+  font-size: 18px;
+  line-height: 28px;
+  font-family: 'InstrumentSans-Regular';
+}
+@utility text-xl {
+  font-size: 20px;
+  line-height: 28px;
+  font-family: 'InstrumentSans-Regular';
+}
+@utility text-2xl {
+  font-size: 24px;
+  line-height: 32px;
+  font-family: 'InstrumentSans-Regular';
+}
+@utility text-heading {
+  font-size: 17px;
+  line-height: 24px;
+  font-family: 'InstrumentSans-SemiBold';
+}
+@utility text-metric {
+  font-size: 22px;
+  line-height: 28px;
+  font-family: 'InstrumentSans-SemiBold';
+}
+
+@utility font-normal {
+  font-family: 'InstrumentSans-Regular';
+  font-weight: 400;
+}
+@utility font-medium {
+  font-family: 'InstrumentSans-Medium';
+  font-weight: 500;
+}
+@utility font-semibold {
+  font-family: 'InstrumentSans-SemiBold';
+  font-weight: 600;
+}
+@utility font-bold {
+  font-family: 'InstrumentSans-Bold';
+  font-weight: 700;
+}
+
+@utility text-display {
+  font-size: 28px;
+  line-height: 34px;
+  font-family: 'BricolageGrotesque-Bold';
+  font-weight: 700;
 }
 
 @layer theme {

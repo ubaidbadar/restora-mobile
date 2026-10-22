@@ -48,7 +48,20 @@
           "recordAudioAndroid": false
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/InstrumentSans-Regular.ttf",
+            "./assets/fonts/InstrumentSans-Medium.ttf",
+            "./assets/fonts/InstrumentSans-SemiBold.ttf",
+            "./assets/fonts/InstrumentSans-Bold.ttf",
+            "./assets/fonts/BricolageGrotesque-SemiBold.ttf",
+            "./assets/fonts/BricolageGrotesque-Bold.ttf"
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
