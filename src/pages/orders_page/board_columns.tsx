@@ -12,6 +12,9 @@ import OrderCard from './order_card';
 
 type BoardStatus = (typeof BOARD_STATUSES)[number];
 const oldestFirst = (a: Order, b: Order) => a.createdAt.localeCompare(b.createdAt);
+// Orders sent from a table's QR page wait for someone to accept them, at the top of New.
+const inColumn = (order: Order, status: BoardStatus) => order.status === status || (status === 'new' && order.status === 'pending');
+const pendingFirst = (a: Order, b: Order) => Number(b.status === 'pending') - Number(a.status === 'pending') || oldestFirst(a, b);
 
 /**
  * Wide screens (tablets): every status as a column side by side. Phones: one status at a time, picked with the chips
@@ -22,9 +25,9 @@ export default function BoardColumns({ orders, header, refreshing, onRefresh, on
   const { status = 'new' } = useLocalSearchParams<{ status?: BoardStatus }>();
   const shown = orders.filter((order) => order.status !== 'cancelled');
   const columns = BOARD_STATUSES.map((value) => {
-    const inColumn = shown.filter((order) => order.status === value).sort(oldestFirst);
+    const orders = shown.filter((order) => inColumn(order, value)).sort(pendingFirst);
     // Done: the latest first; everything else: the one waiting longest first.
-    return { status: value, orders: value === 'completed' ? inColumn.reverse() : inColumn };
+    return { status: value, orders: value === 'completed' ? orders.reverse() : orders };
   });
   const refresh = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 

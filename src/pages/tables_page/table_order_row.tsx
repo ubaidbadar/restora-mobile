@@ -9,6 +9,7 @@ import formatRs from '@/utils/format_rs';
 import TableOrder from './table_order';
 
 const STATUS_TONES: Record<OrderStatus, 'primary' | 'warning' | 'success' | 'info' | 'neutral' | 'danger'> = {
+  pending: 'warning',
   new: 'primary',
   preparing: 'warning',
   ready: 'success',

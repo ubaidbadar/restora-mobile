@@ -30,17 +30,20 @@ export default function OrderCard({ order, onOrderUpdated }: OrderCardProps) {
   const next = can(workplace, 'orders:update') ? nextStatus(order) : null;
   const token = order.dailyToken;
   // Payments change what customers owe, so they wait for internet (and for the order to reach the server).
-  const payable = can(workplace, 'orders:payment') && order.paymentStatus === 'unpaid' && !order.pendingSync;
+  // A guest's order from the table is accepted before it is paid.
+  const payable = can(workplace, 'orders:payment') && order.paymentStatus === 'unpaid' && !order.pendingSync && order.status !== 'pending';
+  const fromTable = order.status === 'pending';
   const cancellable = can(workplace, 'orders:cancel') && Boolean(nextStatus(order));
   // Dishes can change until the order is on the way or done, while the bill is still open.
   const editable = Boolean(next) && order.status !== 'out_for_delivery' && order.paymentStatus === 'unpaid' && !order.pendingSync;
 
-  const advance = () => next && changeOrder(order, 'patch', `/orders/${order._id}`, { status: next }, `Order #${token} moved to ${STATUS_LABELS[next]}`, onOrderUpdated);
+  const advance = () =>
+    next && changeOrder(order, 'patch', `/orders/${order._id}`, { status: next }, fromTable ? `Order #${token} accepted` : `Order #${token} moved to ${STATUS_LABELS[next]}`, onOrderUpdated);
   const cancel = () =>
     confirm({
-      title: `Cancel order #${token}?`,
-      message: "It leaves the board and is not counted in sales. Its customer's khata and totals are corrected.",
-      confirmLabel: 'Cancel order',
+      title: fromTable ? `Turn down order #${token}?` : `Cancel order #${token}?`,
+      message: fromTable ? 'The guest’s order leaves the board. Let them know at the table.' : "It leaves the board and is not counted in sales. Its customer's khata and totals are corrected.",
+      confirmLabel: fromTable ? 'Turn down' : 'Cancel order',
       destructive: true,
     }).then((ok) => ok && changeOrder(order, 'post', `/orders/${order._id}/cancel`, undefined, `Order #${token} cancelled`, onOrderUpdated));
 
@@ -50,7 +53,7 @@ export default function OrderCard({ order, onOrderUpdated }: OrderCardProps) {
     { label: 'Edit dishes', icon: 'create-outline', symbol: 'square.and.pencil', onPress: () => router.push(`/order/${order._id}`), hidden: !editable },
     { label: 'Print kitchen slip', icon: 'restaurant-outline', symbol: 'printer', onPress: () => void printOrder(order, 'kitchen') },
     { label: 'Print receipt', icon: 'receipt-outline', symbol: 'receipt', onPress: () => void printOrder(order, 'receipt') },
-    { label: 'Cancel order', icon: 'close-circle-outline', symbol: 'xmark.circle', onPress: () => void cancel(), destructive: true, hidden: !cancellable },
+    { label: fromTable ? 'Turn down' : 'Cancel order', icon: 'close-circle-outline', symbol: 'xmark.circle', onPress: () => void cancel(), destructive: true, hidden: !cancellable },
   ];
   /** Everything, for ⋯ and long-press. */
   const allWith = (openPay: () => void, openDetails: () => void): MenuAction[] => [
