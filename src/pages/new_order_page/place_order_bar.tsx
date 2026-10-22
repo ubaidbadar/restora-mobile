@@ -20,7 +20,8 @@ export default function PlaceOrderBar({ control, loading, error, onSubmit, submi
   const { totals, itemCount } = orderTotalsOf(watched, taxByPaymentMethod);
 
   return (
-    <View style={{ paddingBottom: Math.max(bottom, 16) }} className="gap-2 border-t border-border bg-surface px-5 pt-3">
+    // A little above the home indicator or gesture bar, so the total and the button stay clear of the rounded corners.
+    <View style={{ paddingBottom: Math.max(bottom + 8, 16) }} className="gap-2 border-t border-border bg-surface px-5 pt-3">
       {error && (
         <Text accessibilityRole="alert" className="text-sm font-medium text-danger-700">
           {error}
