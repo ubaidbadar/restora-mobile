@@ -1,47 +1,61 @@
-import { useState } from 'react';
+import type Me from '@shared/me';
 import { Link, useLocalSearchParams } from 'expo-router';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 import AuthCard from '@/components/auth_card';
+import AuthForm from '@/components/auth_form';
 import authClient from '@/config/auth_api';
-import WEB_URL from '@/constants/web_url';
+import useAuthStore from '@/store/auth_store';
 import Button from '@/ui/button';
-import toast from '@/utils/toast';
+import Input from '@/ui/input';
+import fieldError from '@/utils/field_error';
+import ResendButton from './resend_button';
+import checkEmailSchema from './schema';
 
-/** After creating an account (or signing in before confirming): open the emailed link, then sign in here. */
+/** After creating an account (or signing in before confirming): type the emailed code. It confirms the email and signs in. */
 export default function CheckEmailPage() {
   const { email = '' } = useLocalSearchParams<{ email?: string }>();
-  const [sending, setSending] = useState(false);
-
-  const resend = () => {
-    if (sending) return;
-    setSending(true);
-    authClient
-      .sendVerificationEmail({ email, callbackURL: WEB_URL })
-      .then(({ error }) =>
-        error ? toast.error(error.message ?? 'Could not send the email. Try again in a minute.') : toast.success('Sent. Check your inbox.')
-      )
-      .finally(() => setSending(false));
-  };
 
   return (
     <AuthCard
       edges={['bottom']}
       title="Check your email"
-      subtitle={email ? `We sent a link to ${email}. Open it to confirm your email.` : 'Open the link we emailed you to confirm your email.'}
+      subtitle={`We sent a 6-digit code to ${email}. Enter it to confirm your email.`}
+      footer={
+        <Link href="/sign_in" dismissTo asChild>
+          <Button variant="primaryLink">Used the link instead? Sign in</Button>
+        </Link>
+      }
     >
-      <View className="gap-5">
-        <Text className="text-base text-body">The link works for one hour. Not there? Look in spam, or send it again.</Text>
-        <View className="gap-3 pt-2">
-          <Link href="/sign_in" dismissTo asChild>
-            <Button size="lg">{"I've confirmed it, sign in"}</Button>
-          </Link>
-          {email !== '' && (
-            <Button variant="outline" size="lg" disabled={sending} onPress={resend}>
-              {sending ? 'Sending link…' : 'Send the link again'}
-            </Button>
-          )}
-        </View>
-      </View>
+      <AuthForm
+        schema={checkEmailSchema}
+        submitLabel="Confirm email"
+        busyLabel="Checking…"
+        onSubmit={async ({ data, onSuccess, onError }) => {
+          const { data: answer, error } = await authClient.emailOtp.verifyEmail({ email, otp: data.code });
+          if (error) return onError(error.message ?? 'Could not check the code. Try again.');
+          onSuccess('');
+          // Signed in: the answer carries /me, and the app opens.
+          useAuthStore.getState().setMe((answer as unknown as { me: Me }).me);
+        }}
+        fields={({ register, errors }) => (
+          <>
+            <Input
+              label="Code"
+              keyboardType="number-pad"
+              autoComplete="one-time-code"
+              textContentType="oneTimeCode"
+              maxLength={7}
+              placeholder="123456"
+              returnKeyType="go"
+              required
+              {...register('code')}
+              error={fieldError(errors, 'code')}
+            />
+            <Text className="text-base text-body">The code works for 10 minutes. Not there? Look in spam, or send a new one.</Text>
+            <ResendButton email={email} />
+          </>
+        )}
+      />
     </AuthCard>
   );
 }

@@ -32,7 +32,7 @@ export default function SignInPage() {
         busyLabel="Signing in…"
         onSubmit={async ({ data, onSuccess, onError }) => {
           const { data: answer, error } = await authClient.signIn.email({ email: data.email, password: data.password });
-          // Not confirmed yet: the server just emailed a fresh link.
+          // Not confirmed yet: the server just emailed a fresh code.
           if (error?.code === 'EMAIL_NOT_VERIFIED') {
             onSuccess('');
             return router.push({ pathname: '/check_email', params: { email: data.email } });

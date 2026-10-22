@@ -10,7 +10,7 @@ import PasswordInput from '@/ui/password_input';
 import fieldError from '@/utils/field_error';
 import signUpSchema from './schema';
 
-/** Create an account: name, email, password. We email a link to confirm the address, then they sign in here. */
+/** Create an account: name, email, password. We email a code to confirm the address; entering it signs them in. */
 export default function SignUpPage() {
   return (
     <AuthCard
