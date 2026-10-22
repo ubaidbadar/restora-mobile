@@ -26,6 +26,7 @@
 - Native bottom sheets with long forms and the keyboard (customer form, cart sheet) on a small Android phone.
 - Swipe rows inside the orders list (no conflict with scrolling) and the snackbar's swipe.
 - The tab bar height guess for the snackbar position (`constants/tab_bar_height`).
+- Continue with Google (native sheet) on an Android and an iPhone build with the Google client IDs set. Not in Expo Go.
 
 ## Next
 

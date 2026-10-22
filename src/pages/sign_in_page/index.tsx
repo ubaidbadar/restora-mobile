@@ -3,6 +3,7 @@ import { Link, router } from 'expo-router';
 import { Text } from 'react-native';
 import AuthCard from '@/components/auth_card';
 import AuthForm from '@/components/auth_form';
+import GoogleSignIn from '@/components/google_sign_in';
 import authClient from '@/config/auth_api';
 import useAuthStore from '@/store/auth_store';
 import Button from '@/ui/button';
@@ -26,6 +27,7 @@ export default function SignInPage() {
         </>
       }
     >
+      <GoogleSignIn />
       <AuthForm
         schema={signInSchema}
         submitLabel="Sign in"
