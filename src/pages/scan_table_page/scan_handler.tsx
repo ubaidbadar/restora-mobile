@@ -22,9 +22,10 @@ export default function ScanHandler() {
   const handle = (data: string) => {
     if (data === scan.seen) return;
     setScan({ ...scan, seen: data });
-    const code = /\/t\/([^/?#]+)/.exec(data)?.[1];
+    // Everything after /t/: `restaurant/table-key`, or an older card's single code.
+    const code = /\/t\/([^?#]+)/.exec(data)?.[1]?.replace(/\/$/, '');
     const tables = (getCache.get(getCache.keyOf('/tables/floor')) as FloorTable[] | undefined) ?? [];
-    const table = code && tables.find((item) => item.qrCode === code);
+    const table = code && tables.find((item) => item.qrCode === code || item.oldCodes?.includes(code));
     if (!table) {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       toast.error(code ? 'This QR code is not a table of this branch' : 'Not a Restora table QR code');
