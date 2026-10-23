@@ -6,6 +6,7 @@ import Badge from '@/ui/badge';
 import formatDate from '@/utils/format_date';
 import formatRs from '@/utils/format_rs';
 import formatTime from '@/utils/format_time';
+import cancellationText from '@/utils/cancellation_text';
 
 const PAYMENT_BADGES = { paid: 'success', unpaid: 'warning', khata: 'warning' } as const;
 const PAYMENT_LABELS = { paid: 'Paid', unpaid: 'Unpaid', khata: 'On khata' };
@@ -23,6 +24,7 @@ export default function OrderHistoryRow({ order, first }: { order: Order; first:
         <Text numberOfLines={2} className="mt-0.5 text-sm text-muted">
           {order.items.map((item) => `${item.qty} × ${item.name}${item.sizeName ? ` (${item.sizeName})` : ''}`).join(', ')}
         </Text>
+        {cancelled && order.cancellation && <Text className="mt-0.5 text-sm text-danger-700">{cancellationText(order.cancellation)}</Text>}
       </View>
       <View className="items-end gap-1">
         <Text className={`text-sm font-semibold ${cancelled ? 'text-muted line-through' : 'text-ink'}`}>{formatRs(order.total)}</Text>

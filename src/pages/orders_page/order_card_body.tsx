@@ -12,6 +12,7 @@ import lineDetails from '@/utils/line_details';
 import DeliveryInfo from './delivery_info';
 import ElapsedChip from './elapsed_chip';
 import nameCase from '@/utils/name_case';
+import cancellationText from '@/utils/cancellation_text';
 
 const PAYMENT_BADGES = { paid: ['success', 'Paid'], unpaid: ['warning', 'Unpaid'], khata: ['warning', 'On khata'] } as const;
 const SHOWN_LINES = 5;
@@ -35,13 +36,14 @@ interface OrderCardBodyProps {
  */
 export default function OrderCardBody({ order, actions, advanceLabel, payable, onPress, onMenu, onAdvance, onPay }: OrderCardBodyProps) {
   const [paymentVariant, paymentLabel] = PAYMENT_BADGES[order.paymentStatus];
-  const finished = order.status === 'completed' || order.status === 'cancelled';
+  const cancelled = order.status === 'cancelled';
+  const finished = order.status === 'completed' || cancelled;
   const hidden = order.items.length - SHOWN_LINES;
   const itemCount = order.items.reduce((sum, item) => sum + item.qty, 0);
 
   return (
     <Pressable
-      accessibilityLabel={`Order ${order.dailyToken}, ${ORDER_TYPE_LABELS[order.type]}, ${formatRs(order.total)}, ${paymentLabel}`}
+      accessibilityLabel={`Order ${order.dailyToken}, ${ORDER_TYPE_LABELS[order.type]}, ${formatRs(order.total)}, ${cancelled ? 'cancelled' : paymentLabel}`}
       accessibilityHint="Opens the details. Long press for every action."
       onPress={onPress}
       onLongPress={() => {
@@ -60,12 +62,16 @@ export default function OrderCardBody({ order, actions, advanceLabel, payable, o
               {ORDER_TYPE_LABELS[order.type]}
               {order.tableName ? ` · Table ${order.tableName}` : ''}
             </Text>
-            <Badge variant={paymentVariant}>{paymentLabel}</Badge>
+            {cancelled && <Badge variant="danger">Cancelled</Badge>}
+            {/* A cancelled order is not owed; only say it if money had changed hands. */}
+            {!(cancelled && order.paymentStatus === 'unpaid') && <Badge variant={paymentVariant}>{paymentLabel}</Badge>}
           </View>
           {order.pendingSync && <Badge>Waiting to sync</Badge>}
           {order.status === 'pending' && <Badge variant="warning">From table QR</Badge>}
         </View>
       </View>
+
+      {cancelled && order.cancellation && <Text className="rounded-control bg-danger-50 px-3 py-2 text-sm text-danger-700">{cancellationText(order.cancellation)}</Text>}
 
       {order.customer && (
         <Text numberOfLines={1} className="text-base font-semibold text-ink">
