@@ -14,6 +14,7 @@ import printOrder from '@/utils/print_order';
 import TotalsList from './totals_list';
 import WhatsAppLink from './whatsapp_link';
 import nameCase from '@/utils/name_case';
+import cancellationText from '@/utils/cancellation_text';
 
 const PAYMENT_TEXT = { paid: 'Paid', unpaid: 'Not paid yet', khata: 'On khata' };
 const PAYMENT_LINES = { paid: 'Paid by', unpaid: 'To pay by', khata: 'Added to khata, tax as for' } as const;
@@ -52,6 +53,11 @@ export default function OrderDetails({ order }: { order: Order }) {
         {customer && <Text className="text-base font-semibold text-ink">{nameCase(customer.name)}</Text>}
         {where !== '' && <Text className="text-sm text-body">{where}</Text>}
       </View>
+      {order.cancellation && (
+        <Text className="rounded-control bg-danger-50 px-3 py-2 text-sm text-danger-700">
+          <Text className="font-semibold text-danger-700">Cancelled</Text> · {cancellationText(order.cancellation)}
+        </Text>
+      )}
       <View className="border-y border-border">
         {order.items.map((item, index) => (
           <View key={index} className={`flex-row justify-between gap-3 py-2.5 ${index ? 'border-t border-border' : ''}`}>

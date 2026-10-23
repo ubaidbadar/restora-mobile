@@ -2,6 +2,7 @@ import { Text, View } from 'react-native';
 import { useWatch } from 'react-hook-form';
 import type FormComponentProps from '@/types/form_component_props';
 import AmountField from '@/ui/amount_field';
+import Can from '@/components/can';
 import fieldError from '@/utils/field_error';
 import CartLines from './cart_lines';
 import OrderTotals from './order_totals';
@@ -27,9 +28,16 @@ export default function CartPanel({ editing, heading = true, ...props }: FormCom
       {itemCount > 0 && (
         <>
           <OrderTypePicker {...props} />
-          {/* A placed order is paid from the board, so editing leaves payment out. */}
-          {!editing && <PaymentPicker {...props} />}
-          <AmountField label="Discount" {...props.register('discount')} error={fieldError(props.errors, 'discount')} />
+          {/* A placed order is paid from the board, so editing leaves payment out. Without the payment permission it
+              starts as Pay later; each part shows only to people the server lets use it. */}
+          {!editing && (
+            <Can permission="orders:payment">
+              <PaymentPicker {...props} />
+            </Can>
+          )}
+          <Can permission="orders:discount">
+            <AmountField label="Discount" {...props.register('discount')} error={fieldError(props.errors, 'discount')} />
+          </Can>
           <OrderTotals {...props} />
         </>
       )}
