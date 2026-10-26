@@ -40,3 +40,6 @@
 - Tab screens draw their own title (`components/page_header`, inside the scroll view) in `components/tab_screen`; pages opened from More get a back arrow.
 - Native Menu (dishes, categories, add-ons), Reservations and Staff (members, invitations) under More → Manage. Only restaurant settings, branches, tables and roles still open the web.
 - Lint fails on any deprecated API (`@typescript-eslint/no-deprecated`).
+
+## 2026-10-26 update
+- Menu deals: Menu → Deals (add, edit, stock, days and hours); New order offers a deal only while it can be sold and shows what is in it; order cards and slips list a deal's dishes.

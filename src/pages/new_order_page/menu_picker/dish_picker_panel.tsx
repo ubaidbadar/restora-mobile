@@ -16,11 +16,13 @@ import AddonChoices from './addon_choices';
 interface DishPickerPanelProps extends OverlayProps {
   dish: MenuItem;
   groups: AddonGroup[];
+  /** What is in a deal; '' for a dish. */
+  contents: string;
   onAdd: (item: CartItem) => void;
 }
 
 /** Size, add-ons and a note for one dish, with the price as it adds up. "Add" puts one in the order. */
-export default function DishPickerPanel({ dish, groups, onAdd, ...overlay }: DishPickerPanelProps) {
+export default function DishPickerPanel({ dish, groups, contents, onAdd, ...overlay }: DishPickerPanelProps) {
   const [pick, setPick] = useState(() => ({
     sizeId: dish.sizes[0]?._id ?? '',
     addonIds: groups.flatMap((group) => (group.min > 0 && group.options.length > 0 ? [group.options[0]!._id] : [])),
@@ -33,6 +35,7 @@ export default function DishPickerPanel({ dish, groups, onAdd, ...overlay }: Dis
 
   return (
     <SheetPanel {...overlay} title={dish.name}>
+      {contents !== '' && <Text className="text-sm text-muted">{contents}</Text>}
       {dish.sizes.length > 1 && (
         <View className="gap-2">
           <Text className="text-sm font-semibold text-ink">Size</Text>

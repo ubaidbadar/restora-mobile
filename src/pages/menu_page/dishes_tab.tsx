@@ -13,7 +13,8 @@ import type MenuTabProps from './menu_tab_props';
 /** Every dish, narrowed by a search and a category. */
 export default function DishesTab({ menu, onUpdate, header, refreshing, onRefresh }: MenuTabProps & { header: ReactNode; refreshing: boolean; onRefresh: () => void }) {
   const [filter, setFilter] = useState({ search: '', category: ALL_CATEGORIES });
-  const shown = filterMenu(menu, filter.search, filter.category);
+  // Deals have their own tab.
+  const shown = filterMenu({ ...menu, items: menu.items.filter((item) => !item.includes.length) }, filter.search, filter.category);
   const save = (dish: MenuItem) => onUpdate({ items: upsertById(menu.items, dish) });
 
   return (

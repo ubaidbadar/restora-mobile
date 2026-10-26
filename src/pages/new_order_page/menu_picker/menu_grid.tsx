@@ -7,6 +7,7 @@ import type CartItem from '@/types/cart_item';
 import type FormComponentProps from '@/types/form_component_props';
 import type Menu from '@/types/menu';
 import type MenuItem from '@/types/menu_item';
+import dealContents from '@/utils/deal_contents';
 import filterMenu from '@/utils/filter_menu';
 import setQty from '@/utils/set_qty';
 import DishRow from './dish_row';
@@ -20,6 +21,7 @@ interface MenuGridProps extends FormComponentProps {
   header: ReactNode;
   categories: ReactNode;
   wide: boolean;
+  allItems: MenuItem[];
 }
 
 /** The same dish, size, add-ons and note adds to its line; anything different is a new line. */
@@ -27,7 +29,7 @@ const addItem = (items: CartItem[], item: CartItem): CartItem[] =>
   items.some((line) => line.key === item.key) ? items.map((line) => (line.key === item.key ? { ...line, qty: line.qty + item.qty } : line)) : [...items, item];
 
 /** The dishes: rows on phones, tiles on tablets. Reads `items` only to show each dish's quantity; taps write `items`. */
-export default function MenuGrid({ menu, search, category, header, categories, wide, control, setValue }: MenuGridProps) {
+export default function MenuGrid({ menu, search, category, header, categories, wide, allItems, control, setValue }: MenuGridProps) {
   const items: CartItem[] = useWatch({ control, name: 'items' }) ?? [];
   const width = useWindowDimensions().width;
   const shown = filterMenu(menu, search, category);
@@ -38,6 +40,7 @@ export default function MenuGrid({ menu, search, category, header, categories, w
   const props = (dish: MenuItem) => ({
     dish,
     groups: dish.addonGroupIds.flatMap((id) => menu.addonGroups.filter((group) => group._id === id)),
+    contents: dealContents(dish, allItems),
     lines: items.filter((line) => line.itemId === dish._id),
     onAdd: (item: CartItem) => {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
