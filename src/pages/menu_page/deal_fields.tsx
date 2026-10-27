@@ -28,7 +28,7 @@ export default function DealFields({ menu, ...form }: FormComponentProps & { men
       <Input label="Name" required autoCapitalize="words" placeholder="e.g. Deal 1" {...register('name')} error={fieldError(errors, 'name')} />
       <Select label="Category" required placeholder="Pick a category" options={menu.categories.map((category) => ({ value: category._id, label: category.name }))} {...register('categoryId')} error={fieldError(errors, 'categoryId')} />
       <Input label="Deal price (Rs)" required keyboardType="number-pad" {...register('price')} error={fieldError(errors, 'price')} />
-      <DealPartRows dishes={menu.items.filter((item) => !item.includes.length)} {...form} />
+      <DealPartRows dishes={menu.items.filter((item) => !item.includes?.length)} {...form} />
       {menu.addonGroups.length > 0 && (
         <CheckList
           label="Choices (optional)"

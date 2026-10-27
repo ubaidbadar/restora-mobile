@@ -32,7 +32,7 @@ export default function MenuPicker({ header, wide = false, ...props }: MenuPicke
     );
   }
   const items = data.items.filter(
-    (item) => !item.hidden && !item.soldOut && onSale(item) && item.includes.every((part) => data.items.some((dish) => dish._id === part.itemId && !dish.soldOut))
+    (item) => !item.hidden && !item.soldOut && onSale(item) && (item.includes ?? []).every((part) => data.items.some((dish) => dish._id === part.itemId && !dish.soldOut))
   );
   if (!items.length) {
     return (

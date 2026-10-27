@@ -12,7 +12,7 @@ import type MenuTabProps from './menu_tab_props';
 /** Deals: dishes sold together at one price ("Karahi + 2 naan + drink"), narrowed by a search. */
 export default function DealsTab({ menu, onUpdate, header, refreshing, onRefresh }: MenuTabProps & { header: ReactNode; refreshing: boolean; onRefresh: () => void }) {
   const [search, setSearch] = useState('');
-  const shown = filterMenu({ ...menu, items: menu.items.filter((item) => item.includes.length > 0) }, search, ALL_CATEGORIES);
+  const shown = filterMenu({ ...menu, items: menu.items.filter((item) => (item.includes?.length ?? 0) > 0) }, search, ALL_CATEGORIES);
   const save = (deal: MenuItem) => onUpdate({ items: upsertById(menu.items, deal) });
 
   return (

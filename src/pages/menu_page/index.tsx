@@ -100,7 +100,7 @@ function MenuScreen() {
         }}
         onSave={(values) => api.post<MenuItem>('/menu/items', values).then((res) => onUpdate({ items: upsertById(menu.items, res.data) }))}
         fields={(form) => <DealFields menu={menu} {...form} />}
-        component={({ open }) => <IconButton icon="add" variant="soft" label="Add deal" disabled={!menu.items.some((item) => !item.includes.length)} onPress={open} />}
+        component={({ open }) => <IconButton icon="add" variant="soft" label="Add deal" disabled={!menu.items.some((item) => !item.includes?.length)} onPress={open} />}
       />
     ),
     categories: (
