@@ -12,14 +12,14 @@
       "android"
     ],
     "ios": {
-      "bundleIdentifier": "com.restora.app",
+      "bundleIdentifier": "com.restoralive.app",
       "supportsTablet": true,
       "infoPlist": {
         "UIViewControllerBasedStatusBarAppearance": true
       }
     },
     "android": {
-      "package": "com.restora.app",
+      "package": "com.restoralive.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/brand/adaptive_foreground.png",
         "monochromeImage": "./assets/brand/adaptive_monochrome.png",
