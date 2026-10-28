@@ -10,7 +10,7 @@
         "./assets/*"
       ],
       "@shared/*": [
-        "../shared/*"
+        "./shared/*"
       ]
     }
   },
