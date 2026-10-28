@@ -27,15 +27,19 @@ import CategoryRow from './category_row';
 import DishFields from './dish_fields';
 import dishSchema from './dish_schema';
 import DishesTab from './dishes_tab';
+import DealFields from './deal_fields';
+import dealSchema from './deal_schema';
+import DealsTab from './deals_tab';
 import ListTab from './list_tab';
 
 const TABS = [
   { value: 'dishes', label: 'Dishes' },
+  { value: 'deals', label: 'Deals' },
   { value: 'categories', label: 'Categories' },
   { value: 'addons', label: 'Add-ons' },
 ];
 
-/** The restaurant's menu, shared by every branch: dishes, their categories and add-on groups. The tab is in the URL. */
+/** The restaurant's menu, shared by every branch: dishes, deals, their categories and add-on groups. The tab is in the URL. */
 export default function MenuPage() {
   return (
     <RequirePermission permission="menu:view">
@@ -80,6 +84,25 @@ function MenuScreen() {
         component={({ open }) => <IconButton icon="add" variant="soft" label="Add dish" disabled={!categories.length} onPress={open} />}
       />
     ),
+    deals: (
+      <FormSheet
+        title="Add deal"
+        schema={dealSchema}
+        defaultValues={{
+          categoryId: categories.find((category) => /deal/i.test(category.name))?._id ?? categories[0]?._id ?? '',
+          price: '',
+          includes: [{ itemId: '', sizeId: '', qty: '1' }],
+          addonGroupIds: [],
+          days: [],
+          from: '',
+          to: '',
+          hidden: false,
+        }}
+        onSave={(values) => api.post<MenuItem>('/menu/items', values).then((res) => onUpdate({ items: upsertById(menu.items, res.data) }))}
+        fields={(form) => <DealFields menu={menu} {...form} />}
+        component={({ open }) => <IconButton icon="add" variant="soft" label="Add deal" disabled={!menu.items.some((item) => !item.includes?.length)} onPress={open} />}
+      />
+    ),
     categories: (
       <FormSheet
         title="Add category"
@@ -99,7 +122,7 @@ function MenuScreen() {
         component={({ open }) => <IconButton icon="add" variant="soft" label="Add add-on group" onPress={open} />}
       />
     ),
-  }[tab as 'dishes' | 'categories' | 'addons'];
+  }[tab as 'dishes' | 'deals' | 'categories' | 'addons'];
 
   return (
     <>
@@ -149,6 +172,8 @@ function MenuScreen() {
             />
           ))}
         </ListTab>
+      ) : tab === 'deals' ? (
+        <DealsTab menu={menu} onUpdate={onUpdate} header={header} {...reload} />
       ) : (
         <DishesTab menu={menu} onUpdate={onUpdate} header={header} {...reload} />
       )}

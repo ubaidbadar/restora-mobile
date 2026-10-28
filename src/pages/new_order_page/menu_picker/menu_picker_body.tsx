@@ -4,12 +4,15 @@ import { ScrollView, View } from 'react-native';
 import ALL_CATEGORIES from '@/constants/all_categories';
 import type FormComponentProps from '@/types/form_component_props';
 import type Menu from '@/types/menu';
+import type MenuItem from '@/types/menu_item';
 import Chip from '@/ui/chip';
 import SearchField from '@/ui/search_field';
 import MenuGrid from './menu_grid';
 
 interface MenuPickerBodyProps extends FormComponentProps {
   menu: Menu;
+  /** Every dish, hidden ones too, to name what is in a deal. */
+  allItems: MenuItem[];
   header: ReactNode;
   wide: boolean;
 }
