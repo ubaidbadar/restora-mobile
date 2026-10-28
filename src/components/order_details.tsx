@@ -10,7 +10,7 @@ import formatDate from '@/utils/format_date';
 import formatRs from '@/utils/format_rs';
 import formatTime from '@/utils/format_time';
 import lineDetails from '@/utils/line_details';
-import printOrder from '@/utils/print_order';
+import printSlip from '@/utils/print_slip';
 import TotalsList from './totals_list';
 import WhatsAppLink from './whatsapp_link';
 import nameCase from '@/utils/name_case';
@@ -85,7 +85,7 @@ export default function OrderDetails({ order }: { order: Order }) {
       </View>
       <View className="gap-2">
         {customer?.phone && <WhatsAppLink phone={customer.phone} message={receiptText(order, restaurantName)}>Send receipt on WhatsApp</WhatsAppLink>}
-        <Button variant="outline" size="lg" icon="print-outline" onPress={() => void printOrder(order, 'receipt')}>
+        <Button variant="outline" size="lg" icon="print-outline" onPress={() => void printSlip(order, 'receipt')}>
           Print receipt
         </Button>
       </View>

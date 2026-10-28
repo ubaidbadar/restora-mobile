@@ -11,7 +11,7 @@ import type DishProps from './dish_props';
  * A dish as one row on phones. A plain dish: tapping the row (or +) adds one. A dish with sizes or add-ons: tapping
  * opens its choices first. Once in the order, + becomes a stepper (or the count, when it is in with different choices).
  */
-export default function DishRow({ dish, groups, lines, onAdd, onQty, first, last }: DishProps & { first: boolean; last: boolean }) {
+export default function DishRow({ dish, groups, contents, lines, onAdd, onQty, first, last }: DishProps & { first: boolean; last: boolean }) {
   const plain = dish.sizes.length === 1 && groups.length === 0;
   const qty = lines.reduce((sum, line) => sum + line.qty, 0);
 
@@ -19,6 +19,7 @@ export default function DishRow({ dish, groups, lines, onAdd, onQty, first, last
     <DishPicker
       dish={dish}
       groups={groups}
+      contents={contents}
       onAdd={onAdd}
       component={({ open }) => {
         const add = plain ? () => onAdd(defaultLine(dish, groups)) : open;
@@ -30,6 +31,11 @@ export default function DishRow({ dish, groups, lines, onAdd, onQty, first, last
               <Text numberOfLines={2} className="text-base font-medium text-ink">
                 {dish.name}
               </Text>
+              {contents !== '' && (
+                <Text numberOfLines={2} className="text-sm text-muted">
+                  {contents}
+                </Text>
+              )}
               <View className="flex-row items-center gap-1.5">
                 <Text className="text-sm font-semibold text-body">{priceRange(dish.sizes)}</Text>
                 {!plain && (

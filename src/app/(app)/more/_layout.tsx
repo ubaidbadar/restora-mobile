@@ -9,6 +9,7 @@ export default function MoreLayout() {
       <Stack.Screen name="menu" options={{ title: 'Menu' }} />
       <Stack.Screen name="reservations" options={{ title: 'Reservations' }} />
       <Stack.Screen name="staff" options={{ title: 'Staff' }} />
+      <Stack.Screen name="printers" options={{ title: 'Printers' }} />
     </Stack>
   );
 }

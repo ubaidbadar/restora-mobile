@@ -6,6 +6,7 @@ import SkeletonList from '@/components/skeleton_list';
 import useGet from '@/hooks/useGet';
 import type FormComponentProps from '@/types/form_component_props';
 import type Menu from '@/types/menu';
+import onSale from '@/utils/on_sale';
 import MenuPickerBody from './menu_picker_body';
 
 interface MenuPickerProps extends FormComponentProps {
@@ -15,7 +16,10 @@ interface MenuPickerProps extends FormComponentProps {
   wide?: boolean;
 }
 
-/** The menu; hidden dishes and dishes sold out in this branch are left out so they cannot be ordered. */
+/**
+ * The menu; hidden dishes, dishes sold out in this branch and deals that cannot be sold now (outside their hours, or a
+ * dish in them sold out) are left out so they cannot be ordered.
+ */
 export default function MenuPicker({ header, wide = false, ...props }: MenuPickerProps) {
   const { data, loading, get } = useGet<Menu>('/menu');
 
@@ -27,7 +31,9 @@ export default function MenuPicker({ header, wide = false, ...props }: MenuPicke
       </ScrollView>
     );
   }
-  const items = data.items.filter((item) => !item.hidden && !item.soldOut);
+  const items = data.items.filter(
+    (item) => !item.hidden && !item.soldOut && onSale(item) && (item.includes ?? []).every((part) => data.items.some((dish) => dish._id === part.itemId && !dish.soldOut))
+  );
   if (!items.length) {
     return (
       <View className="flex-1 p-4">
@@ -37,5 +43,5 @@ export default function MenuPicker({ header, wide = false, ...props }: MenuPicke
     );
   }
   const menu = { ...data, items, categories: data.categories.filter((category) => items.some((item) => item.categoryId === category._id)) };
-  return <MenuPickerBody menu={menu} header={header} wide={wide} {...props} />;
+  return <MenuPickerBody menu={menu} allItems={data.items} header={header} wide={wide} {...props} />;
 }
