@@ -52,13 +52,27 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
+      - name: Find existing build for this commit
+        id: existing
+        run: |
+          BUILD_JSON=$(eas build:list --platform android --status finished --limit 30 --json --non-interactive || echo '[]')
+          BUILD_ID=$(printf '%s' "$BUILD_JSON" | jq -r --arg sha "$GITHUB_SHA" --arg prof "$EAS_PROFILE" 'first(.[] | select(.gitCommitHash == $sha and (.buildProfile == $prof or .channel == $prof)) | .id) // empty' || true)
+          echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
+          if [ -n "$BUILD_ID" ]; then echo "Reusing existing build $BUILD_ID for $EAS_PROFILE."; else echo "No finished build found for this commit and profile; building a new one."; fi
+
       - name: Write Play service account key
         env:
           PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: printf '%s' "$PLAY_SERVICE_ACCOUNT_JSON" > service-account.json
 
       - name: Build Android app bundle
+        if: steps.existing.outputs.build_id == ''
         run: eas build --platform android --profile "$EAS_PROFILE" --non-interactive --wait
 
-      - name: Submit to Google Play
+      - name: Submit existing build to Google Play
+        if: steps.existing.outputs.build_id != ''
+        run: eas submit --platform android --profile "$EAS_PROFILE" --id "${{ steps.existing.outputs.build_id }}" --non-interactive
+
+      - name: Submit new build to Google Play
+        if: steps.existing.outputs.build_id == ''
         run: eas submit --platform android --profile "$EAS_PROFILE" --latest --non-interactive
