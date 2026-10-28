@@ -17,7 +17,7 @@ same endpoints, same state updates after saves, same zod schemas, same permissio
   `useSafeAreaInsets`, `useCSSVariable`. No `useRef`, request counters, `useMemo`, `useCallback` or `memo`.
 - **No one-line wrappers.** Write `useAuthStore((state) => state.me?.workplace)` where it is used, not `useWorkplace()`.
 - Default exports only, one export per file, file named after its export, `snake_case` (hooks camelCase).
-- Imports use `@/…` (this app's `src/`) and `@shared/…` (`../shared`). No `../../`.
+- Imports use `@/…` (this app's `src/`) and `@shared/…` (`./shared`, a copy of the web app's `shared/`: change it there and copy it here). No `../../`.
 - `/me` is read once at start; after a save the store or list is updated from the answer (`update(...)`), never re-read.
 - Each list is loaded once by the top component of the screen and passed down. Rows never call `useGet`.
 

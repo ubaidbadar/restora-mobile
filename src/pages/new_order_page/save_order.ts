@@ -3,7 +3,7 @@ import getCache from '@/store/get_cache';
 import useOutboxStore from '@/store/outbox_store';
 import type Order from '@/types/order';
 import type SubmitProps from '@/types/submit_props';
-import printOrder from '@/utils/print_order';
+import printSlip from '@/utils/print_slip';
 import syncOutbox from '@/utils/sync_outbox';
 import toast from '@/utils/toast';
 import upsertById from '@/utils/upsert_by_id';
@@ -18,7 +18,7 @@ export default function saveOrder({ data, onSuccess, onError }: SubmitProps) {
   const clientId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
   const body = { ...data, clientId, placedAt: new Date().toISOString() };
   const finish = (message: string, order?: Order) => {
-    toast.success(message, order && { label: 'Print slip', onClick: () => void printOrder(order, 'kitchen') });
+    toast.success(message, order && { label: 'Print slip', onClick: () => void printSlip(order, 'kitchen') });
     onSuccess('');
   };
   const saveOffline = () => {
