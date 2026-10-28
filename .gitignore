@@ -43,3 +43,5 @@ example
 /android
 .env
 service-account.json
+
+upload-keystore.keystore
