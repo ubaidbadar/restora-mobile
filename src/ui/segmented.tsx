@@ -10,7 +10,7 @@ interface SegmentedProps {
   onChange?: (value: string) => void;
 }
 
-/** The web's segmented control: equal parts in a sunken track, the picked one raised on the surface. */
+/** The web's segmented control: equal parts in a sunken track, each with the same border, the picked one raised on the surface. */
 function SegmentedView({ options, value, onChange }: SegmentedProps) {
   return (
     <View accessibilityRole="radiogroup" className="flex-row gap-1 rounded-control bg-sunken p-1">
@@ -26,7 +26,7 @@ function SegmentedView({ options, value, onChange }: SegmentedProps) {
               void Haptics.selectionAsync();
               onChange?.(option.value);
             }}
-            className={`min-h-10 flex-1 items-center justify-center rounded-small px-2 ${selected ? 'border border-border bg-surface' : 'active:opacity-60'}`}
+            className={`min-h-10 flex-1 items-center justify-center rounded-small border border-border px-2 ${selected ? 'bg-surface' : 'active:opacity-60'}`}
           >
             <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} className={`text-sm ${selected ? 'font-semibold text-ink' : 'font-medium text-body'}`}>
               {option.label}
