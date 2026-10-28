@@ -6,6 +6,7 @@ import PageHeader from '@/components/page_header';
 import TabScreen from '@/components/tab_screen';
 import AccountCard from './account_card';
 import AppearanceSection from './appearance_section';
+import DeleteAccountButton from './delete_account_button';
 import ManageSection from './manage_section';
 import MoreSection from './more_section';
 import PagesSection from './pages_section';
@@ -38,6 +39,7 @@ export default function MorePage() {
         </MoreSection>
       )}
       <SignOutButton />
+      <DeleteAccountButton />
       <Text className="text-center text-xs text-muted">Restora {Constants.expoConfig?.version}</Text>
       </ScrollView>
     </TabScreen>
