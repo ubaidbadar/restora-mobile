@@ -3,7 +3,7 @@ import getCache from '@/store/get_cache';
 import useOutboxStore from '@/store/outbox_store';
 import type Order from '@/types/order';
 import type SubmitProps from '@/types/submit_props';
-import printOrder from '@/utils/print_order';
+import printSlip from '@/utils/print_slip';
 import syncOutbox from '@/utils/sync_outbox';
 import toast from '@/utils/toast';
 import offlineOrder from './offline_order';
@@ -13,7 +13,7 @@ export default function saveChanges(order: Order, { data, onSuccess, onError }: 
   const { paymentStatus: _status, paymentMethod: _method, ...changes } = data;
   const token = order.dailyToken;
   const done = (message: string, saved: Order) => {
-    toast.success(message, { label: 'Print slip', onClick: () => void printOrder(saved, 'kitchen') });
+    toast.success(message, { label: 'Print slip', onClick: () => void printSlip(saved, 'kitchen') });
     onSuccess('');
   };
   // The order as the board will show it, worked out here from the form and the menu prices.

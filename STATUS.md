@@ -40,3 +40,11 @@
 - Tab screens draw their own title (`components/page_header`, inside the scroll view) in `components/tab_screen`; pages opened from More get a back arrow.
 - Native Menu (dishes, categories, add-ons), Reservations and Staff (members, invitations) under More → Manage. Only restaurant settings, branches, tables and roles still open the web.
 - Lint fails on any deprecated API (`@typescript-eslint/no-deprecated`).
+
+## 2026-10-26 update
+- Menu deals: Menu → Deals (add, edit, stock, days and hours); New order offers a deal only while it can be sold and shows what is in it; order cards and slips list a deal's dishes.
+
+## 2026-10-28 update
+- A fresh clone typechecks and bundles on its own: `shared/` is copied into this repo (as in web and the server) instead of read from `../shared`, and `src/expo_types.d.ts` loads Expo's types before `expo start` has made `expo-env.d.ts`.
+- More → Manage → Printers (`devices:manage`), as the web's Settings → Printers: add a PC and read its pairing code, see it online, set what each printer prints. The Windows agent itself runs only on the PC.
+- Print buttons (`utils/print_slip`) send the slip through `POST /print-jobs` to the branch's printers; without a printer set up, without internet or for an order not sent yet, the phone's print dialog opens as before.

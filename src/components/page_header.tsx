@@ -18,7 +18,7 @@ interface PageHeaderProps {
  * is not in the tab bar (opened from More) starts with a back arrow.
  */
 export default function PageHeader({ title, subtitle, children }: PageHeaderProps) {
-  const tab = useSegments()[1];
+  const tab = useSegments().at(1);
   // A page opened from More (it is not in the tab bar) gets a back arrow to More.
   const fromMore = splitTabLinks(useAuthStore((state) => state.me?.workplace)).inMore.some((link) => link.name === tab);
 

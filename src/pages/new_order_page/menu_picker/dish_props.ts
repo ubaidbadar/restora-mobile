@@ -7,6 +7,8 @@ export default interface DishProps {
   dish: MenuItem;
   /** The dish's add-on groups, in its order. */
   groups: AddonGroup[];
+  /** What is in a deal; '' for a dish. */
+  contents: string;
   /** This dish's lines in the cart. */
   lines: CartItem[];
   onAdd: (item: CartItem) => void;

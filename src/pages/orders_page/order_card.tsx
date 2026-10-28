@@ -6,7 +6,7 @@ import type MenuAction from '@/types/menu_action';
 import type Order from '@/types/order';
 import MenuSheet from '@/ui/menu_sheet';
 import SwipeRow from '@/ui/swipe_row';
-import printOrder from '@/utils/print_order';
+import printSlip from '@/utils/print_slip';
 import ADVANCE_LABELS from './advance_labels';
 import changeOrder from './change_order';
 import nextStatus from './next_status';
@@ -47,8 +47,8 @@ export default function OrderCard({ order, onOrderUpdated }: OrderCardProps) {
   // Edit, print and cancel: under ⋯ and long-press after the main actions, and as rows in the details sheet.
   const moreWith = (openCancel: () => void): MenuAction[] => [
     { label: 'Edit dishes', icon: 'create-outline', symbol: 'square.and.pencil', onPress: () => router.push(`/order/${order._id}`), hidden: !editable },
-    { label: 'Print kitchen slip', icon: 'restaurant-outline', symbol: 'printer', onPress: () => void printOrder(order, 'kitchen') },
-    { label: 'Print receipt', icon: 'receipt-outline', symbol: 'receipt', onPress: () => void printOrder(order, 'receipt') },
+    { label: 'Print kitchen slip', icon: 'restaurant-outline', symbol: 'printer', onPress: () => void printSlip(order, 'kitchen') },
+    { label: 'Print receipt', icon: 'receipt-outline', symbol: 'receipt', onPress: () => void printSlip(order, 'receipt') },
     { label: fromTable ? 'Turn down' : 'Cancel order', icon: 'close-circle-outline', symbol: 'xmark.circle', onPress: openCancel, destructive: true, hidden: !cancellable },
   ];
   /** Everything, for ⋯ and long-press. */
