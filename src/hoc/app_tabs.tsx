@@ -31,12 +31,14 @@ export default function AppTabs({ workplace }: { workplace: Workplace }) {
 
   return (
     <Tabs style={{ flex: 1, backgroundColor: canvas }} options={{ backBehavior: 'history' }}>
-      {/* The bar floats over the screens; their lists leave room for it at the end (pb-32). */}
+      {/* The bar lies over the screens; their lists leave room for it at the end (pb-32). */}
       <TabSlot />
       {can(workplace, 'orders:view') && <LiveUpdates key={workplace.branch?._id} />}
       {(can(workplace, 'orders:view') || can(workplace, 'tables:view')) && <PushAlerts key={workplace.branch?._id} />}
+      {/* Edge to edge and down to the screen's bottom; the safe-area padding keeps the tabs above the home indicator and
+          clear of the rounded corners. */}
       <TabList asChild>
-        <View style={{ height: TAB_BAR_HEIGHT, bottom: Math.max(bottom - 12, 12) }} className="absolute inset-x-3 flex-row items-stretch rounded-panel border border-border bg-surface shadow-lg">
+        <View style={{ height: TAB_BAR_HEIGHT + bottom, paddingBottom: bottom }} className="absolute inset-x-0 bottom-0 flex-row items-stretch border-t border-border bg-surface px-2">
           {inBar.slice(0, 2).map(trigger)}
           {takesOrders && <NewOrderTabButton />}
           {inBar.slice(2).map(trigger)}
