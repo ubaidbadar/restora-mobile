@@ -6,6 +6,7 @@ import type Workplace from '@shared/workplace';
 import can from '@shared/can';
 import LiveUpdates from '@/components/live_updates';
 import NewOrderTabButton from '@/components/new_order_tab_button';
+import PushAlerts from '@/components/push_alerts';
 import TabBarButton from '@/components/tab_bar_button';
 import TAB_BAR_HEIGHT from '@/constants/tab_bar_height';
 import TAB_LINKS from '@/constants/tab_links';
@@ -33,6 +34,7 @@ export default function AppTabs({ workplace }: { workplace: Workplace }) {
       {/* The bar floats over the screens; their lists leave room for it at the end (pb-32). */}
       <TabSlot />
       {can(workplace, 'orders:view') && <LiveUpdates key={workplace.branch?._id} />}
+      {(can(workplace, 'orders:view') || can(workplace, 'tables:view')) && <PushAlerts key={workplace.branch?._id} />}
       <TabList asChild>
         <View style={{ height: TAB_BAR_HEIGHT, bottom: Math.max(bottom - 12, 12) }} className="absolute inset-x-3 flex-row items-stretch rounded-panel border border-border bg-surface shadow-lg">
           {inBar.slice(0, 2).map(trigger)}
