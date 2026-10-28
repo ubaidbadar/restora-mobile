@@ -20,7 +20,7 @@ function ToggleView({ label, hint, value = false, onChange, disabled }: TogglePr
         <Text className="text-base text-ink">{label}</Text>
         {hint && <Text className="text-sm text-muted">{hint}</Text>}
       </View>
-      <Switch accessibilityLabel={label} value={value} onValueChange={onChange} disabled={disabled} trackColorOnClassName="accent-primary" trackColorOffClassName="accent-border-strong" />
+      <Switch accessibilityLabel={label} value={value} onValueChange={onChange} disabled={disabled} trackColorOnClassName="accent-primary" trackColorOffClassName="accent-border-strong" thumbColorClassName="accent-surface" />
     </View>
   );
 }
