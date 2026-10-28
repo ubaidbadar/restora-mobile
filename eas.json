@@ -1,0 +1,55 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "internal": {
+      "distribution": "internal",
+      "channel": "internal",
+      "android": {
+        "buildType": "app-bundle",
+        "autoIncrement": true
+      }
+    },
+    "open": {
+      "distribution": "internal",
+      "channel": "open",
+      "android": {
+        "buildType": "app-bundle",
+        "autoIncrement": true
+      }
+    },
+    "production": {
+      "distribution": "store",
+      "channel": "production",
+      "android": {
+        "buildType": "app-bundle",
+        "autoIncrement": true
+      }
+    }
+  },
+  "submit": {
+    "internal": {
+      "android": {
+        "track": "internal",
+        "releaseStatus": "completed",
+        "serviceAccountKeyPath": "service-account.json"
+      }
+    },
+    "open": {
+      "android": {
+        "track": "open",
+        "releaseStatus": "completed",
+        "serviceAccountKeyPath": "service-account.json"
+      }
+    },
+    "production": {
+      "android": {
+        "track": "production",
+        "releaseStatus": "completed",
+        "serviceAccountKeyPath": "service-account.json"
+      }
+    }
+  }
+}
