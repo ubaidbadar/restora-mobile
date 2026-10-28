@@ -42,6 +42,14 @@
       ],
       "expo-secure-store",
       [
+        "expo-notifications",
+        {
+          "icon": "./assets/brand/adaptive_monochrome.png",
+          "color": "#4F46E5",
+          "defaultChannel": "guests"
+        }
+      ],
+      [
         "expo-camera",
         {
           "cameraPermission": "Restora uses the camera to scan the QR code on a table.",

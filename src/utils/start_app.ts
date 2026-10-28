@@ -1,5 +1,7 @@
 import type Me from '@shared/me';
 import NetInfo from '@react-native-community/netinfo';
+import * as Notifications from 'expo-notifications';
+import can from '@shared/can';
 import { Uniwind } from 'uniwind';
 import api from '@/config/api';
 import useAuthStore from '@/store/auth_store';
@@ -39,6 +41,16 @@ export default function startApp() {
       void offlineDb.set('me', null);
       getCache.clear();
     }
+  });
+
+  // An alert that comes while the app is open is not shown: the live stream already put up a toast and buzzed. Without
+  // orders:view there is no live stream, so it shows.
+  Notifications.setNotificationHandler({
+    handleNotification: async () => {
+      const workplace = useAuthStore.getState().me?.workplace;
+      const show = !workplace || !can(workplace, 'orders:view');
+      return { shouldShowBanner: show, shouldShowList: true, shouldPlaySound: show, shouldSetBadge: false };
+    },
   });
 
   // Back online: send what waited. While anything waits, try every 30 seconds too.

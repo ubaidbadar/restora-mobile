@@ -68,8 +68,21 @@ jobs:
           path: android/app/build/outputs/bundle/release/app-release.aab
           key: aab-${{ github.sha }}
 
+      # Push alerts: optional. Without these the app ships as before, only without alerts.
+      - name: Write Firebase config for push alerts
+        if: steps.aab-cache.outputs.cache-hit != 'true'
+        env:
+          GOOGLE_SERVICES_JSON_CONTENT: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON_CONTENT" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON_CONTENT" > google-services.json
+            echo "GOOGLE_SERVICES_JSON=./google-services.json" >> "$GITHUB_ENV"
+          fi
+
       - name: Prebuild Android project
         if: steps.aab-cache.outputs.cache-hit != 'true'
+        env:
+          EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
         run: npx expo prebuild --platform android --non-interactive --clean
 
       - name: Write upload keystore

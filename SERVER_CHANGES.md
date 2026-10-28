@@ -13,5 +13,4 @@
 
 ## Later
 
-- Push notifications for guest calls and new orders (Expo push tokens per device).
 - Email links (verify email, reset password) open the web app; universal links could open the app instead.
