@@ -1,0 +1,64 @@
+name: Play Store release
+
+on:
+  push:
+    branches: [dev, stage, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: play-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Verify
+        run: yarn verify
+
+      - name: Check release secrets
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then echo "Missing EXPO_TOKEN secret. Create an Expo access token and add it as a repository secret named EXPO_TOKEN."; exit 1; fi
+          if [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ]; then echo "Missing GOOGLE_SERVICE_ACCOUNT_JSON secret. Add the Google Play service account JSON as a repository secret named GOOGLE_SERVICE_ACCOUNT_JSON."; exit 1; fi
+
+      - name: Select release profile
+        run: |
+          case "${GITHUB_REF_NAME}" in
+            dev) echo "EAS_PROFILE=internal" >> "$GITHUB_ENV" ;;
+            stage) echo "EAS_PROFILE=open" >> "$GITHUB_ENV" ;;
+            main) echo "EAS_PROFILE=production" >> "$GITHUB_ENV" ;;
+          esac
+
+      - name: Set up EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Write Play service account key
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: printf '%s' "$PLAY_SERVICE_ACCOUNT_JSON" > service-account.json
+
+      - name: Build Android app bundle
+        run: eas build --platform android --profile "$EAS_PROFILE" --non-interactive --wait
+
+      - name: Submit to Google Play
+        run: eas submit --platform android --profile "$EAS_PROFILE" --latest --non-interactive
