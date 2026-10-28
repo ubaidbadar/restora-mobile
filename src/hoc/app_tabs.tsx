@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+import { isRunningInExpoGo } from 'expo';
 import { TabList, Tabs, TabSlot, TabTrigger } from 'expo-router/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCSSVariable } from 'uniwind';
@@ -30,11 +31,12 @@ export default function AppTabs({ workplace }: { workplace: Workplace }) {
   );
 
   return (
-    <Tabs style={{ flex: 1, backgroundColor: canvas }} options={{ backBehavior: 'history' }}>
+    <Tabs style={{ flex: 1, backgroundColor: canvas }} options={{ backBehavior: 'initialRoute' }}>
       {/* The bar lies over the screens; their lists leave room for it at the end (pb-32). */}
       <TabSlot />
       {can(workplace, 'orders:view') && <LiveUpdates key={workplace.branch?._id} />}
-      {(can(workplace, 'orders:view') || can(workplace, 'tables:view')) && <PushAlerts key={workplace.branch?._id} />}
+      {/* Expo Go cannot get push alerts (and lacks parts of expo-notifications), so only real builds listen. */}
+      {!isRunningInExpoGo() && (can(workplace, 'orders:view') || can(workplace, 'tables:view')) && <PushAlerts key={workplace.branch?._id} />}
       {/* Edge to edge and down to the screen's bottom; the safe-area padding keeps the tabs above the home indicator and
           clear of the rounded corners. */}
       <TabList asChild>
