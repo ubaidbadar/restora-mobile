@@ -6,7 +6,8 @@ import type DashboardAnswer from '@/types/dashboard_answer';
 import Segmented from '@/ui/segmented';
 import Skeleton from '@/ui/skeleton';
 import dayKey from '@/utils/day_key';
-import formatDay from '@/utils/format_day';
+import formatDayRange from '@/utils/format_day_range';
+import DateRangeBar from '@/components/date_range_bar';
 import PageHeader from '@/components/page_header';
 import TabScreen from '@/components/tab_screen';
 import TodayNumbers from './today_numbers';
@@ -16,11 +17,12 @@ const SCOPES = [
   { value: 'all', label: 'All branches' },
 ];
 
-/** Today's numbers for the working branch or, for people allowed to, all branches; and customers who need a nudge. */
+/** The picked days' numbers (today at first) for the working branch or, for people allowed to, all branches; and customers who need a nudge. */
 export default function TodayPage() {
-  const { data, loading, refreshing, options, get } = useGet<DashboardAnswer>('/dashboard', { params: { scope: 'branch' } });
+  const { data, loading, refreshing, options, get } = useGet<DashboardAnswer>('/dashboard', { params: { scope: 'branch', from: dayKey(), to: dayKey() } });
   const workplace = useAuthStore.getState().me?.workplace;
-  const scope: string = options.params.scope;
+  const { scope, from, to }: { scope: string; from: string; to: string } = options.params;
+  const isToday = from === to && to === dayKey();
 
   return (
     <TabScreen>
@@ -30,14 +32,15 @@ export default function TodayPage() {
         refreshControl={<RefreshControl refreshing={Boolean(refreshing) && !loading} onRefresh={() => get()} />}
       >
         <PageHeader
-          title="Today"
-          subtitle={`${formatDay(`${dayKey()}T12:00:00+05:00`)} · ${scope === 'all' ? 'All branches' : (workplace?.branch?.name ?? 'No branch open')}`}
+          title={isToday ? 'Today' : 'Dashboard'}
+          subtitle={`${formatDayRange(from, to)} · ${scope === 'all' ? 'All branches' : (workplace?.branch?.name ?? 'No branch open')}`}
         />
+      <DateRangeBar from={from} to={to} onChange={(from, to) => get({ params: { from, to } }, { reuse: true })} />
       {can(workplace, 'reports:view_all_branches') && <Segmented options={SCOPES} value={scope} onChange={(value) => get({ params: { scope: value } }, { reuse: true })} />}
       {data && !loading ? (
-        <TodayNumbers data={data} scope={scope} />
+        <TodayNumbers data={data} scope={scope} isToday={isToday} />
       ) : (
-        <View accessibilityLabel="Loading today's numbers" className="gap-4">
+        <View accessibilityLabel="Loading the numbers" className="gap-4">
           <Skeleton className="h-44 rounded-card" />
           <Skeleton className="h-40 rounded-card" />
           <Skeleton className="h-40 rounded-card" />

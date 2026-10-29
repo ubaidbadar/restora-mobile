@@ -10,7 +10,7 @@ import ORDER_TYPE_LABELS from '@/constants/order_type_labels';
 import CANCEL_REASON_LABELS from '@/constants/cancel_reason_labels';
 
 /** The numbers: four headline figures, then the breakdowns (two side by side on tablets), then who is slipping away. */
-export default function TodayNumbers({ data, scope }: { data: DashboardAnswer; scope: string }) {
+export default function TodayNumbers({ data, scope, isToday }: { data: DashboardAnswer; scope: string; isToday: boolean }) {
   const wide = useWindowDimensions().width >= WIDE_WIDTH;
   const { stats } = data;
   const orders = (count: number) => (count === 1 ? '1 order' : `${count} orders`);
@@ -19,9 +19,9 @@ export default function TodayNumbers({ data, scope }: { data: DashboardAnswer; s
     <View className="gap-4">
       <StatGrid
         stats={[
-          { label: 'Sales today', value: formatRs(stats.sales), hint: orders(stats.orderCount) },
+          { label: isToday ? 'Sales today' : 'Sales', value: formatRs(stats.sales), hint: orders(stats.orderCount) },
           { label: 'Average order', value: formatRs(stats.orderCount ? stats.sales / stats.orderCount : 0) },
-          { label: 'New customers', value: String(stats.newCustomers), hint: 'Added today' },
+          { label: 'New customers', value: String(stats.newCustomers), hint: isToday ? 'Added today' : 'Added in these days' },
           { label: 'Khata outstanding', value: formatRs(stats.khataTotal), hint: stats.khataCustomers === 1 ? '1 customer owes' : `${stats.khataCustomers} customers owe` },
         ]}
       />
@@ -39,7 +39,7 @@ export default function TodayNumbers({ data, scope }: { data: DashboardAnswer; s
         <BreakdownCard
           title="Cancelled"
           summary={stats.cancelled.count ? `${orders(stats.cancelled.count)} worth ${formatRs(stats.cancelled.value)}, not counted in sales.` : undefined}
-          empty="No orders cancelled today."
+          empty="No orders cancelled."
           rows={stats.cancelled.byReason.map((row) => ({ key: row.reason ?? 'none', label: row.reason ? CANCEL_REASON_LABELS[row.reason] : 'No reason given', count: orders(row.count), amount: formatRs(row.value) }))}
         />
       )}
