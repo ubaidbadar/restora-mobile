@@ -19,8 +19,8 @@ interface TabsProps {
 
 /**
  * The app's one tab strip (the web's `ui/tabs`): page tabs, filters and picked-one choices in forms. A light primary
- * track with a primary border, the picked option filled in primary and the others in primary text. Without `scroll` or
- * `wrap` the options share the width equally.
+ * track with a primary border, the picked option filled in primary and the others in purple text (`accent-text`, which
+ * stays readable on the dark track). Without `scroll` or `wrap` the options share the width equally.
  */
 function TabsView({ options, value, onChange, scroll = false, wrap = false, className = '' }: TabsProps) {
   const even = !scroll && !wrap;
@@ -40,11 +40,11 @@ function TabsView({ options, value, onChange, scroll = false, wrap = false, clas
             }}
             className={`min-h-10 flex-row items-center justify-center gap-2 rounded-small px-3 ${even ? 'flex-1' : ''} ${selected ? 'bg-primary' : 'active:opacity-60'}`}
           >
-            <Text numberOfLines={1} adjustsFontSizeToFit={even} minimumFontScale={0.85} className={`text-sm ${selected ? 'font-semibold text-on-primary' : 'font-medium text-primary'}`}>
+            <Text numberOfLines={1} adjustsFontSizeToFit={even} minimumFontScale={0.85} className={`text-sm ${selected ? 'font-semibold text-on-primary' : 'font-medium text-accent-text'}`}>
               {option.label}
             </Text>
             {option.count !== undefined && (
-              <Text className={`min-w-5 rounded-small px-1 text-center text-xs font-semibold ${selected ? 'bg-primary-hover text-on-primary' : 'bg-surface text-primary'}`}>{option.count}</Text>
+              <Text className={`min-w-5 rounded-small px-1 text-center text-xs font-semibold ${selected ? 'bg-primary-hover text-on-primary' : 'bg-surface text-accent-text'}`}>{option.count}</Text>
             )}
           </Pressable>
         );
