@@ -14,7 +14,7 @@ import type MenuCategory from '@/types/menu_category';
 import type MenuItem from '@/types/menu_item';
 import IconButton from '@/ui/icon_button';
 import Input from '@/ui/input';
-import Segmented from '@/ui/segmented';
+import Tabs from '@/ui/tabs';
 import fieldError from '@/utils/field_error';
 import getAxiosMessage from '@/utils/get_axios_message';
 import toast from '@/utils/toast';
@@ -58,7 +58,7 @@ function MenuScreen() {
   }
   const onUpdate = (changes: Partial<Menu>) => update((current) => (current ? { ...current, ...changes } : current));
   const { categories, addonGroups } = menu;
-  const header = <Segmented options={TABS} value={tab} onChange={(value) => router.setParams({ tab: value })} />;
+  const header = <Tabs options={TABS} value={tab} onChange={(value) => router.setParams({ tab: value })} />;
   const reload = { refreshing: Boolean(refreshing), onRefresh: () => get() };
 
   // Saves the new order: each category whose place changed gets its place as `sortOrder`.

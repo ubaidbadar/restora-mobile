@@ -5,7 +5,7 @@ import type CartItem from '@/types/cart_item';
 import type MenuItem from '@/types/menu_item';
 import type OverlayProps from '@/types/overlay_props';
 import Button from '@/ui/button';
-import Chip from '@/ui/chip';
+import Tabs from '@/ui/tabs';
 import Input from '@/ui/input';
 import SheetPanel from '@/ui/sheet_panel';
 import addonRule from '@/utils/addon_rule';
@@ -39,11 +39,12 @@ export default function DishPickerPanel({ dish, groups, contents, onAdd, ...over
       {dish.sizes.length > 1 && (
         <View className="gap-2">
           <Text className="text-sm font-semibold text-ink">Size</Text>
-          <View className="flex-row flex-wrap gap-2">
-            {dish.sizes.map((option) => (
-              <Chip key={option._id} label={`${option.name} · ${formatRs(option.price)}`} selected={option._id === pick.sizeId} onPress={() => setPick({ ...pick, sizeId: option._id })} />
-            ))}
-          </View>
+          <Tabs
+            wrap
+            options={dish.sizes.map((option) => ({ value: option._id, label: `${option.name} · ${formatRs(option.price)}` }))}
+            value={pick.sizeId}
+            onChange={(sizeId) => setPick({ ...pick, sizeId })}
+          />
         </View>
       )}
       {groups.map((group) => (

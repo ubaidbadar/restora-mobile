@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { Uniwind, useUniwind } from 'uniwind';
 import type ThemeChoice from '@/types/theme_choice';
-import Segmented from '@/ui/segmented';
+import Tabs from '@/ui/tabs';
 import offlineDb from '@/utils/offline_db';
 
 const CHOICES: { value: ThemeChoice; label: string }[] = [
@@ -16,7 +16,7 @@ export default function AppearanceSection() {
 
   return (
     <View className="p-3">
-      <Segmented
+      <Tabs
         options={CHOICES}
         value={hasAdaptiveThemes ? 'system' : theme}
         onChange={(value) => {

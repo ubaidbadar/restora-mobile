@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import ChipRadios from '@/components/chip_radios';
+import Tabs from '@/ui/tabs';
 import CANCEL_REASON_LABELS from '@/constants/cancel_reason_labels';
 import type Order from '@/types/order';
 import type OrderCancellation from '@/types/order_cancellation';
@@ -41,7 +41,7 @@ export default function CancelOrderPanel({ order, onCancel, ...overlay }: Cancel
             </Text>
             <View className="gap-2">
               <Text className="text-sm font-semibold text-muted">Why?</Text>
-              <ChipRadios {...register('reason')} options={REASONS} />
+              <Tabs {...register('reason')} options={REASONS} wrap />
               {fieldError(errors, 'reason') && (
                 <Text accessibilityRole="alert" className="text-sm font-medium text-danger-700">
                   {fieldError(errors, 'reason')}
