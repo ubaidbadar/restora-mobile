@@ -5,7 +5,7 @@
 - **Foundation.** Expo SDK 58, native tabs, a stack with native headers per tab; light and dark theme from the same
   tokens as the web; offline storage of `/me`, `useGet` answers and the outbox (`utils/offline_db`); sync when the
   internet is back and every 30 s while anything waits; the API address found from the dev machine.
-- **UI kit.** Button, icon button, icon, input, password, select (sheet), segmented control (native), chips, toggle,
+- **UI kit.** Button, icon button, icon, input, password, select (sheet), tabs (`ui/tabs`: the one strip for tabs, filters and picks), chips, toggle,
   badge, avatar, skeleton, native bottom sheet, menu sheet, swipe row, snackbar with swipe-to-dismiss, form, form sheet.
 - **Auth and start.** Sign in, create account, check email, forgot password, your restaurants and invitations,
   create a restaurant, tax setup, menu setup.

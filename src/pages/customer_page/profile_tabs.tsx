@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 import type Customer from '@/types/customer';
-import Segmented from '@/ui/segmented';
+import Tabs from '@/ui/tabs';
 import KhataTab from './khata_tab';
 import NotesTab from './notes_tab';
 import OrdersTab from './orders_tab';
@@ -23,7 +23,7 @@ export default function ProfileTabs({ customer, onCustomer }: ProfileTabsProps) 
 
   return (
     <View className="gap-4">
-      <Segmented options={TABS} value={tab} onChange={(value) => router.setParams({ tab: value })} />
+      <Tabs options={TABS} value={tab} onChange={(value) => router.setParams({ tab: value })} />
       {tab === 'khata' ? (
         // Keyed by the balance: a payment recorded above (or taken back here) loads the lines again.
         <KhataTab key={customer.khataBalance} customer={customer} onCustomer={onCustomer} />

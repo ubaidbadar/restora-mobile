@@ -3,7 +3,7 @@ import useAuthStore from '@/store/auth_store';
 import type FormComponentProps from '@/types/form_component_props';
 import type Role from '@/types/role';
 import CheckList from '@/ui/check_list';
-import Segmented from '@/ui/segmented';
+import Tabs from '@/ui/tabs';
 import fieldError from '@/utils/field_error';
 
 const SCOPES = [
@@ -20,7 +20,7 @@ export default function AccessFields({ roles, register, errors, control }: FormC
   return (
     <>
       <CheckList label="Roles" hint="Pick one or more. What they can do adds up." options={roleOptions} {...register('roleIds')} error={fieldError(errors, 'roleIds')} />
-      <Segmented options={SCOPES} {...register('branchScope')} />
+      <Tabs options={SCOPES} {...register('branchScope')} />
       {scope === 'list' && (
         <CheckList label="Works at" options={(workplace?.branches ?? []).map((branch) => ({ value: branch._id, label: branch.name }))} {...register('branchIds')} error={fieldError(errors, 'branchIds')} />
       )}

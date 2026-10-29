@@ -1,9 +1,9 @@
 import { type ReactNode, useState } from 'react';
-import { FlatList, RefreshControl, ScrollView, View } from 'react-native';
+import { FlatList, RefreshControl, View } from 'react-native';
 import EmptyState from '@/components/empty_state';
 import ALL_CATEGORIES from '@/constants/all_categories';
 import type MenuItem from '@/types/menu_item';
-import Chip from '@/ui/chip';
+import Tabs from '@/ui/tabs';
 import SearchField from '@/ui/search_field';
 import filterMenu from '@/utils/filter_menu';
 import upsertById from '@/utils/upsert_by_id';
@@ -31,11 +31,13 @@ export default function DishesTab({ menu, onUpdate, header, refreshing, onRefres
         <View className="gap-2 pb-1">
           {header}
           <SearchField accessibilityLabel="Search dishes" placeholder="Search dishes" value={filter.search} onChangeText={(search) => setFilter({ ...filter, search })} />
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={{ flexGrow: 0 }} className="-mx-4" contentContainerClassName="gap-2 px-4 py-1">
-            {[{ _id: ALL_CATEGORIES, name: 'All' }, ...menu.categories].map((category) => (
-              <Chip key={category._id} label={category.name} selected={filter.category === category._id} onPress={() => setFilter({ ...filter, category: category._id })} />
-            ))}
-          </ScrollView>
+          <Tabs
+            scroll
+            className="-mx-4"
+            options={[{ value: ALL_CATEGORIES, label: 'All' }, ...menu.categories.map((category) => ({ value: category._id, label: category.name }))]}
+            value={filter.category}
+            onChange={(category) => setFilter({ ...filter, category })}
+          />
         </View>
       }
       ListEmptyComponent={

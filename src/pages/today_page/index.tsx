@@ -3,7 +3,7 @@ import { RefreshControl, ScrollView, View } from 'react-native';
 import useGet from '@/hooks/useGet';
 import useAuthStore from '@/store/auth_store';
 import type DashboardAnswer from '@/types/dashboard_answer';
-import Segmented from '@/ui/segmented';
+import Tabs from '@/ui/tabs';
 import Skeleton from '@/ui/skeleton';
 import dayKey from '@/utils/day_key';
 import formatDayRange from '@/utils/format_day_range';
@@ -23,6 +23,8 @@ export default function TodayPage() {
   const workplace = useAuthStore.getState().me?.workplace;
   const { scope, from, to }: { scope: string; from: string; to: string } = options.params;
   const isToday = from === to && to === dayKey();
+  // One branch: "All branches" would show the same numbers. Someone not at every branch may not see them all, so they keep the choice.
+  const manyBranches = Boolean(workplace && (workplace.branches.length > 1 || !workplace.allBranches));
 
   return (
     <TabScreen>
@@ -36,7 +38,7 @@ export default function TodayPage() {
           subtitle={`${formatDayRange(from, to)} · ${scope === 'all' ? 'All branches' : (workplace?.branch?.name ?? 'No branch open')}`}
         />
       <DateRangeBar from={from} to={to} onChange={(from, to) => get({ params: { from, to } }, { reuse: true })} />
-      {can(workplace, 'reports:view_all_branches') && <Segmented options={SCOPES} value={scope} onChange={(value) => get({ params: { scope: value } }, { reuse: true })} />}
+      {manyBranches && can(workplace, 'reports:view_all_branches') && <Tabs options={SCOPES} value={scope} onChange={(value) => get({ params: { scope: value } }, { reuse: true })} />}
       {data && !loading ? (
         <TodayNumbers data={data} scope={scope} isToday={isToday} />
       ) : (
