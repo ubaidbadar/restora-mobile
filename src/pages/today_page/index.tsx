@@ -21,6 +21,8 @@ export default function TodayPage() {
   const { data, loading, refreshing, options, get } = useGet<DashboardAnswer>('/dashboard', { params: { scope: 'branch' } });
   const workplace = useAuthStore.getState().me?.workplace;
   const scope: string = options.params.scope;
+  // One branch: "All branches" would show the same numbers. Someone not at every branch may not see them all, so they keep the choice.
+  const manyBranches = Boolean(workplace && (workplace.branches.length > 1 || !workplace.allBranches));
 
   return (
     <TabScreen>
@@ -33,7 +35,7 @@ export default function TodayPage() {
           title="Today"
           subtitle={`${formatDay(`${dayKey()}T12:00:00+05:00`)} · ${scope === 'all' ? 'All branches' : (workplace?.branch?.name ?? 'No branch open')}`}
         />
-      {can(workplace, 'reports:view_all_branches') && <Segmented options={SCOPES} value={scope} onChange={(value) => get({ params: { scope: value } }, { reuse: true })} />}
+      {manyBranches && can(workplace, 'reports:view_all_branches') && <Segmented options={SCOPES} value={scope} onChange={(value) => get({ params: { scope: value } }, { reuse: true })} />}
       {data && !loading ? (
         <TodayNumbers data={data} scope={scope} />
       ) : (
