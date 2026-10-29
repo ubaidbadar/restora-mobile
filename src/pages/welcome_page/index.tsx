@@ -15,7 +15,7 @@ import Button from '@/ui/button';
 export default function WelcomePage() {
   return (
     <View className="flex-1 bg-surface">
-      <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1 }}>
+      <SafeAreaView edges={['top', 'bottom', 'left', 'right']} style={{ flex: 1 }}>
         <View className="w-full max-w-md flex-1 gap-5 self-center px-6 pt-2 pb-4">
           <View className="flex-row items-center gap-2.5">
             <Image source={require('@/assets/brand/symbol.png')} style={{ width: 32, height: 32 }} accessibilityIgnoresInvertColors />

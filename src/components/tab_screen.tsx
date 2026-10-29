@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import useSafeSpace from '@/hooks/useSafeSpace';
 
-/** A tab's main screen: the canvas, kept clear of the status bar so content never scrolls under the clock. */
+/** A tab's main screen: the canvas, kept clear of the status bar (and the notch in landscape) so content never scrolls under the clock. */
 export default function TabScreen({ children }: { children: ReactNode }) {
-  const top = useSafeAreaInsets().top;
+  const space = useSafeSpace();
   return (
-    <View style={{ paddingTop: top }} className="flex-1 bg-canvas">
+    <View style={{ paddingTop: space.top, paddingHorizontal: space.sides }} className="flex-1 bg-canvas">
       {children}
     </View>
   );

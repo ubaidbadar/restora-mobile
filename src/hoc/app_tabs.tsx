@@ -9,6 +9,7 @@ import LiveUpdates from '@/components/live_updates';
 import NewOrderTabButton from '@/components/new_order_tab_button';
 import PushAlerts from '@/components/push_alerts';
 import TabBarButton from '@/components/tab_bar_button';
+import useSafeSpace from '@/hooks/useSafeSpace';
 import TAB_BAR_HEIGHT from '@/constants/tab_bar_height';
 import TAB_LINKS from '@/constants/tab_links';
 import type TabLink from '@/types/tab_link';
@@ -21,6 +22,7 @@ import splitTabLinks from '@/utils/split_tab_links';
  */
 export default function AppTabs({ workplace }: { workplace: Workplace }) {
   const bottom = useSafeAreaInsets().bottom;
+  const sides = useSafeSpace().sides;
   const { inBar } = splitTabLinks(workplace);
   const canvas = useCSSVariable('--color-canvas') as string;
   const takesOrders = can(workplace, 'orders:create');
@@ -38,9 +40,9 @@ export default function AppTabs({ workplace }: { workplace: Workplace }) {
       {/* Expo Go cannot get push alerts (and lacks parts of expo-notifications), so only real builds listen. */}
       {!isRunningInExpoGo() && (can(workplace, 'orders:view') || can(workplace, 'tables:view')) && <PushAlerts key={workplace.branch?._id} />}
       {/* Edge to edge and down to the screen's bottom; the safe-area padding keeps the tabs above the home indicator and
-          clear of the rounded corners. */}
+          clear of the rounded corners; in landscape it keeps clear of the notch too. */}
       <TabList asChild>
-        <View style={{ height: TAB_BAR_HEIGHT + bottom, paddingBottom: bottom }} className="absolute inset-x-0 bottom-0 flex-row items-stretch border-t border-border bg-surface px-2">
+        <View style={{ height: TAB_BAR_HEIGHT + bottom, paddingBottom: bottom, paddingHorizontal: sides + 8 }} className="absolute inset-x-0 bottom-0 flex-row items-stretch border-t border-border bg-surface">
           {inBar.slice(0, 2).map(trigger)}
           {takesOrders && <NewOrderTabButton />}
           {inBar.slice(2).map(trigger)}

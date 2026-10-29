@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import { useWatch } from 'react-hook-form';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import useSafeSpace from '@/hooks/useSafeSpace';
 import ORDER_TOTAL_FIELDS from '@/constants/order_total_fields';
 import ORDER_TYPE_LABELS from '@/constants/order_type_labels';
 import useAuthStore from '@/store/auth_store';
@@ -21,7 +21,7 @@ interface CartSheetProps extends FormComponentProps {
 /** Phones: the order so far in a bar at the bottom; once a dish is in, tapping it opens the order to finish and place it. */
 export default function CartSheet({ editing, submitLabel, ...props }: CartSheetProps) {
   const watched = useWatch({ control: props.control, name: [...ORDER_TOTAL_FIELDS] });
-  const bottom = useSafeAreaInsets().bottom;
+  const space = useSafeSpace();
   const taxByPaymentMethod = useAuthStore.getState().me!.workplace!.settings.taxByPaymentMethod;
   const { totals, itemCount, type } = orderTotalsOf(watched, taxByPaymentMethod);
 
@@ -32,7 +32,7 @@ export default function CartSheet({ editing, submitLabel, ...props }: CartSheetP
       footer={<PlaceOrderBar {...props} submitLabel={submitLabel} />}
       component={({ open }) => (
         // Clear of the home indicator or gesture bar, and far enough in that the screen's rounded corners never clip it.
-        <View style={{ paddingBottom: Math.max(bottom + 8, 12) }} className="absolute inset-x-0 bottom-0 px-3 pt-2">
+        <View style={{ paddingBottom: space.bottom, paddingHorizontal: space.sides + 12 }} className="absolute inset-x-0 bottom-0 pt-2">
           {itemCount ? (
             <Pressable
               accessibilityRole="button"

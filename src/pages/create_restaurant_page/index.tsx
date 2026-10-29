@@ -19,7 +19,7 @@ import createRestaurantSchema from './schema';
 export default function CreateRestaurantPage() {
   return (
     <View className="flex-1 bg-surface">
-      <SafeAreaView edges={['bottom']} style={{ flex: 1 }}>
+      <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1 }}>
         <KeyboardAwareScrollView
           bottomOffset={24}
           keyboardShouldPersistTaps="handled"
