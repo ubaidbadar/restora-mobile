@@ -13,7 +13,7 @@ import SyncStatus from './sync_status';
 export default function Snackbar() {
   const toast = useToastStore((state) => state.toast);
   const inTabs = useSegments()[0] === '(app)';
-  // In the tabs it clears the floating bar and New order, which stands 32pt above it.
+  // In the tabs it clears the bar and New order, which stands 32pt above it.
   const bottom = useSafeAreaInsets().bottom + (inTabs ? TAB_BAR_HEIGHT + 32 : 0) + 12;
 
   return (

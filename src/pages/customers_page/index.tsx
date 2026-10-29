@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { FlatList, RefreshControl, ScrollView, View } from 'react-native';
+import { FlatList, RefreshControl, View } from 'react-native';
 import Can from '@/components/can';
 import CustomerFields from '@/components/customer_fields';
 import EmptyState from '@/components/empty_state';
@@ -16,7 +16,7 @@ import useGet from '@/hooks/useGet';
 import type Customer from '@/types/customer';
 import type Segment from '@/types/segment';
 import Button from '@/ui/button';
-import Chip from '@/ui/chip';
+import Tabs from '@/ui/tabs';
 import IconButton from '@/ui/icon_button';
 import SearchField from '@/ui/search_field';
 import toast from '@/utils/toast';
@@ -55,11 +55,7 @@ export default function CustomersPage() {
         </Can>
       </PageHeader>
       <SearchField accessibilityLabel="Search customers by name or phone" placeholder="Name or phone" autoCapitalize="none" value={search} onChangeText={setSearch} />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} className="-mx-4" contentContainerClassName="gap-2 px-4 py-1">
-        {FILTERS.map((filter) => (
-          <Chip key={filter.value} label={filter.label} selected={filter.value === seg} onPress={() => router.setParams({ seg: filter.value })} />
-        ))}
-      </ScrollView>
+      <Tabs scroll className="-mx-4" options={FILTERS} value={seg} onChange={(value) => router.setParams({ seg: value })} />
     </View>
   );
 

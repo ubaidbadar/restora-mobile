@@ -3,7 +3,7 @@ import { RefreshControl, ScrollView, View } from 'react-native';
 import useGet from '@/hooks/useGet';
 import useAuthStore from '@/store/auth_store';
 import type DashboardAnswer from '@/types/dashboard_answer';
-import Segmented from '@/ui/segmented';
+import Tabs from '@/ui/tabs';
 import Skeleton from '@/ui/skeleton';
 import dayKey from '@/utils/day_key';
 import formatDay from '@/utils/format_day';
@@ -33,7 +33,7 @@ export default function TodayPage() {
           title="Today"
           subtitle={`${formatDay(`${dayKey()}T12:00:00+05:00`)} · ${scope === 'all' ? 'All branches' : (workplace?.branch?.name ?? 'No branch open')}`}
         />
-      {can(workplace, 'reports:view_all_branches') && <Segmented options={SCOPES} value={scope} onChange={(value) => get({ params: { scope: value } }, { reuse: true })} />}
+      {can(workplace, 'reports:view_all_branches') && <Tabs options={SCOPES} value={scope} onChange={(value) => get({ params: { scope: value } }, { reuse: true })} />}
       {data && !loading ? (
         <TodayNumbers data={data} scope={scope} />
       ) : (

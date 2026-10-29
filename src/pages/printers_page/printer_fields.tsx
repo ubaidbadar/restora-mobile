@@ -3,7 +3,7 @@ import type FormComponentProps from '@/types/form_component_props';
 import type MenuCategory from '@/types/menu_category';
 import CheckList from '@/ui/check_list';
 import Input from '@/ui/input';
-import Segmented from '@/ui/segmented';
+import Tabs from '@/ui/tabs';
 import fieldError from '@/utils/field_error';
 
 const PRINTS = [
@@ -31,7 +31,7 @@ export default function PrinterFields({ categories, register, errors, control }:
           {...register('categoryIds')}
         />
       )}
-      <Segmented options={WIDTHS} {...register('width')} />
+      <Tabs options={WIDTHS} {...register('width')} />
       <Input label="Copies" keyboardType="number-pad" returnKeyType="done" {...register('copies')} error={fieldError(errors, 'copies')} />
     </>
   );

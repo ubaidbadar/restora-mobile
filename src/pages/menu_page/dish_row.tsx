@@ -78,7 +78,7 @@ export default function DishRow({ dish, menu, onSaved, onDeleted }: DishRowProps
       </View>
       {!dish.hidden && can(workplace, 'menu:stock') && (
         <View className="items-center gap-1">
-          <Switch accessibilityLabel={`${dish.name} in stock at ${branch}`} value={!dish.soldOut} onValueChange={(value) => void setInStock(value)} trackColorOnClassName="accent-primary" trackColorOffClassName="accent-border-strong" />
+          <Switch accessibilityLabel={`${dish.name} in stock at ${branch}`} value={!dish.soldOut} onValueChange={(value) => void setInStock(value)} trackColorOnClassName="accent-primary" trackColorOffClassName="accent-border-strong" thumbColorClassName="accent-surface" />
           <Text className="text-xs text-muted">{dish.soldOut ? 'Sold out' : 'In stock'}</Text>
         </View>
       )}
