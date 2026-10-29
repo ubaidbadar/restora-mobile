@@ -3,7 +3,7 @@ import { RefreshControl, ScrollView, Text, useWindowDimensions, View } from 'rea
 import { router, useLocalSearchParams } from 'expo-router';
 import EmptyState from '@/components/empty_state';
 import type FloorTable from '@/types/floor_table';
-import Chip from '@/ui/chip';
+import Tabs from '@/ui/tabs';
 import CallsStrip from './calls_strip';
 import TableTile from './table_tile';
 
@@ -48,11 +48,7 @@ export default function TablesView({ header, all, refreshing, onRefresh, onAnswe
       ) : (
         <>
           <CallsStrip tables={tables} onAnswer={onAnswer} />
-          <View className="flex-row gap-2">
-            {options.map((option) => (
-              <Chip key={option.value} label={option.label} count={option.count} selected={option.value === show} onPress={() => router.setParams({ show: option.value })} />
-            ))}
-          </View>
+          <Tabs scroll className="-mx-4" options={options} value={show} onChange={(value) => router.setParams({ show: value })} />
           {!shown.length && (
             <EmptyState
               icon={show === 'busy' ? 'cafe-outline' : 'restaurant-outline'}

@@ -82,7 +82,7 @@ export default function DealRow({ deal, menu, onSaved, onDeleted }: DealRowProps
       </View>
       {!deal.hidden && can(workplace, 'menu:stock') && (
         <View className="items-center gap-1">
-          <Switch accessibilityLabel={`${deal.name} in stock at ${branch}`} value={!deal.soldOut} onValueChange={(value) => void setInStock(value)} trackColorOnClassName="accent-primary" trackColorOffClassName="accent-border-strong" />
+          <Switch accessibilityLabel={`${deal.name} in stock at ${branch}`} value={!deal.soldOut} onValueChange={(value) => void setInStock(value)} trackColorOnClassName="accent-primary" trackColorOffClassName="accent-border-strong" thumbColorClassName="accent-surface" />
           <Text className="text-xs text-muted">{deal.soldOut ? 'Sold out' : 'In stock'}</Text>
         </View>
       )}
