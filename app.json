@@ -58,6 +58,13 @@
       ],
       "expo-sharing",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "Restora uses your photos to pick your restaurant's logo.",
+          "microphonePermission": false
+        }
+      ],
+      [
         "expo-font",
         {
           "fonts": [

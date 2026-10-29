@@ -10,10 +10,11 @@ import Form from '@/ui/form';
 import IconButton from '@/ui/icon_button';
 import Input from '@/ui/input';
 import fieldError from '@/utils/field_error';
+import LogoField from './logo_field';
 import createRestaurantSchema from './schema';
 
 /**
- * Setup step 1: the restaurant and its first branch. The server adds the five preset roles and makes you the owner;
+ * Setup step 1: the restaurant, its logo and its first branch. The server adds the five preset roles and makes you the owner;
  * the answer is the new `/me`, and the setup goes on with tax.
  */
 export default function CreateRestaurantPage() {
@@ -91,6 +92,7 @@ export default function CreateRestaurantPage() {
                   )}
 
                   <View className="gap-4">
+                    <LogoField {...form} />
                     <Input label="Restaurant name" placeholder="e.g. Tandoor House" autoCapitalize="words" required {...form.register('name')} error={fieldError(form.errors, 'name')} />
                     <View className="gap-4 border-t border-border pt-5">
                       <View>
