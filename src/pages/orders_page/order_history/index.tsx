@@ -1,16 +1,13 @@
 import type { ReactNode } from 'react';
-import { FlatList, RefreshControl, View } from 'react-native';
+import { FlatList, RefreshControl, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import EmptyState from '@/components/empty_state';
 import LoadFailed from '@/components/load_failed';
 import SkeletonList from '@/components/skeleton_list';
-import StatGrid from '@/components/stat_grid';
-import ORDER_TYPE_OPTIONS from '@/constants/order_type_options';
 import STATUS_LABELS from '@/constants/status_labels';
 import useGet from '@/hooks/useGet';
 import type OrderHistory from '@/types/order_history';
 import type OrderStatus from '@/types/order_status';
-import SearchField from '@/ui/search_field';
 import Tabs from '@/ui/tabs';
 import formatRs from '@/utils/format_rs';
 import HistoryOrderSheet from './history_order_sheet';
@@ -22,33 +19,24 @@ interface OrderHistoryScreenProps {
   /** YYYY-MM-DD, both days included. */
   from: string;
   to: string;
-  /** The page title and the days. */
+  /** The page title, the search and the Filter button. */
   header: ReactNode;
 }
 
 /**
  * Days other than today: no board (their orders are nearly all done), but the numbers and a list loaded 50 at a time,
- * however many days are picked. Search, status and type are the route's params; the status and type tabs keep every
- * count (the server's summary), so picking one never hides the others.
+ * however many days are picked. Search, status and type are the route's params; the status tabs keep every count (the
+ * server's summary), so picking one never hides the others. The search and type are set in the header.
  */
 export default function OrderHistoryScreen({ from, to, header }: OrderHistoryScreenProps) {
   const { q = '', status = 'all', type = 'all' } = useLocalSearchParams<{ q?: string; status?: string; type?: string }>();
   const params = { from, to, q: q || undefined, status: status === 'all' ? undefined : status, type: type === 'all' ? undefined : type };
   const { data, loading, refreshing, get, update } = useGet<OrderHistory>('/orders/history', { params });
 
-  const search = (
-    <SearchField
-      accessibilityLabel="Search orders"
-      placeholder="Token, name, phone or table"
-      defaultValue={q}
-      onSubmitEditing={(event) => router.setParams({ q: event.nativeEvent.text.trim() || undefined })}
-    />
-  );
   if (loading || !data?.summary) {
     return (
       <View className="flex-1 gap-3 bg-canvas px-4">
         {header}
-        {search}
         {loading ? <SkeletonList rows={6} /> : <LoadFailed what="the orders" onRetry={() => get()} />}
       </View>
     );
@@ -70,28 +58,22 @@ export default function OrderHistoryScreen({ from, to, header }: OrderHistoryScr
       ListHeaderComponent={
         <View className="gap-3 pb-1">
           {header}
-          {search}
-          <StatGrid
-            stats={[
-              { label: 'Orders', value: String(summary.count) },
-              { label: 'Sales', value: formatRs(summary.sales), hint: 'Cancelled orders left out' },
-              { label: 'Average order', value: formatRs(counted ? summary.sales / counted : 0) },
-              { label: 'Cancelled', value: String(cancelled) },
-            ]}
-          />
+          {/* One short card: the sales first, the rest on a line under it. */}
+          <View accessibilityLabel="Numbers" className="gap-1 rounded-card border border-border bg-surface px-4 py-3">
+            <Text className="text-sm text-muted">Sales (cancelled left out)</Text>
+            <Text className="text-metric font-bold text-ink">{formatRs(summary.sales)}</Text>
+            <View className="mt-1 flex-row flex-wrap gap-x-4 gap-y-1 border-t border-border pt-2">
+              <Text className="text-sm text-muted"><Text className="font-semibold text-ink">{summary.count}</Text> orders</Text>
+              <Text className="text-sm text-muted">Average <Text className="font-semibold text-ink">{formatRs(counted ? summary.sales / counted : 0)}</Text></Text>
+              <Text className="text-sm text-muted"><Text className="font-semibold text-ink">{cancelled}</Text> cancelled</Text>
+            </View>
+          </View>
           <Tabs
             scroll
             className="-mx-4"
             options={[{ value: 'all', label: 'All', count: summary.count }, ...STATUSES.map((value) => ({ value: value as string, label: STATUS_LABELS[value], count: byStatus(value) }))]}
             value={status}
             onChange={(value) => router.setParams({ status: value === 'all' ? undefined : value })}
-          />
-          <Tabs
-            scroll
-            className="-mx-4"
-            options={ORDER_TYPE_OPTIONS.map((option) => ({ ...option, count: option.value === 'all' ? summary.count : (summary.byType[option.value] ?? 0) }))}
-            value={type}
-            onChange={(value) => router.setParams({ type: value === 'all' ? undefined : value })}
           />
         </View>
       }

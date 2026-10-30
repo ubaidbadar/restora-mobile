@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import DateRangeBar from '@/components/date_range_bar';
+import { useLocalSearchParams } from 'expo-router';
 import PageHeader from '@/components/page_header';
 import TabScreen from '@/components/tab_screen';
 import RequirePermission from '@/hoc/require_permission';
@@ -9,11 +8,13 @@ import SkeletonList from '@/components/skeleton_list';
 import useGet from '@/hooks/useGet';
 import type Order from '@/types/order';
 import dayKey from '@/utils/day_key';
+import ORDER_TYPE_LABELS from '@/constants/order_type_labels';
+import type OrderType from '@/types/order_type';
 import formatDayRange from '@/utils/format_day_range';
 import upsertById from '@/utils/upsert_by_id';
 import BoardWithOutbox from './board_with_outbox';
 import OrderHistoryScreen from './order_history';
-import TodayToolbar from './today_toolbar';
+import OrdersToolbar from './orders_toolbar';
 
 /** The first tab (`/`) for everyone; people whose role can't see orders are told so. */
 export default function OrdersPage() {
@@ -37,18 +38,14 @@ function OrdersBoardScreen({ from, to }: { from: string; to: string }) {
   const today = dayKey();
   const isToday = from === to && to === today;
   const { q = '', status = 'all', type = 'all' } = useLocalSearchParams<{ q?: string; status?: string; type?: string }>();
+  // The subtitle names what the filter picked: other days, a type.
+  const subtitle = [isToday ? '' : formatDayRange(from, to), type === 'all' ? '' : ORDER_TYPE_LABELS[type as OrderType]].filter(Boolean).join(' · ');
 
-  // New order is the + in the middle of the tab bar. Today is left out of the route, so the board stays the live one.
-  // Today's board and other days' list read the status and view differently, so new days start without them.
+  // New order is the + in the middle of the tab bar. The days, type and view are in the Filter sheet.
   const header = (
     <View className="gap-3 pb-2">
-      <PageHeader title="Orders" subtitle={isToday ? undefined : formatDayRange(from, to)} />
-      <DateRangeBar
-        from={from}
-        to={to}
-        onChange={(from, to) => router.setParams({ from: from === today ? undefined : from, to: to === today ? undefined : to, status: undefined, view: undefined })}
-      />
-      {isToday && <TodayToolbar />}
+      <PageHeader title="Orders" subtitle={subtitle || undefined} />
+      <OrdersToolbar live={isToday} />
     </View>
   );
 

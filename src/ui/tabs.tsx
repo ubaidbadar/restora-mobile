@@ -19,12 +19,12 @@ interface TabsProps {
 
 /**
  * The app's one tab strip (the web's `ui/tabs`): page tabs, filters and picked-one choices in forms. A sunken grey
- * track with the picked option raised on the surface. Without `scroll` or `wrap` the options share the width equally.
+ * track edged with a border, the picked option raised on the surface. Without `scroll` or `wrap` the options share the width equally.
  */
 function TabsView({ options, value, onChange, scroll = false, wrap = false, className = '' }: TabsProps) {
   const even = !scroll && !wrap;
   const track = (
-    <View accessibilityRole="radiogroup" className={`flex-row gap-1 rounded-control bg-sunken p-1 ${wrap ? 'flex-wrap' : ''} ${scroll || wrap ? 'self-start' : ''}`}>
+    <View accessibilityRole="radiogroup" className={`flex-row gap-1 rounded-control border border-border bg-sunken p-1 ${wrap ? 'flex-wrap' : ''} ${scroll || wrap ? 'self-start' : ''}`}>
       {options.map((option) => {
         const selected = option.value === value;
         return (
