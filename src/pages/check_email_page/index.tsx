@@ -17,7 +17,7 @@ export default function CheckEmailPage() {
 
   return (
     <AuthCard
-      edges={['bottom']}
+      edges={['bottom', 'left', 'right']}
       title="Check your email"
       subtitle={`We sent a 6-digit code to ${email}. Enter it to confirm your email.`}
       footer={

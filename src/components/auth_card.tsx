@@ -10,7 +10,7 @@ interface AuthCardProps {
   children: ReactNode;
   /** A line under the form, e.g. the link to the other screen. */
   footer?: ReactNode;
-  /** Safe area edges to pad (defaults to ['top', 'bottom']). */
+  /** Safe area edges to pad (defaults to all four; the sides only matter in landscape, round the notch). */
   edges?: readonly ('top' | 'right' | 'bottom' | 'left')[];
   /** Whether to hide the Restora symbol and wordmark in the card. */
   hideBrand?: boolean;
@@ -20,7 +20,7 @@ interface AuthCardProps {
  * The screens before the app: sign in, create account, check email, forgot password, the first restaurant. The column
  * fills the screen, so a form's button sits at the bottom (above the keyboard while typing) on every phone.
  */
-export default function AuthCard({ title, subtitle, children, footer, edges = ['top', 'bottom'], hideBrand = false }: AuthCardProps) {
+export default function AuthCard({ title, subtitle, children, footer, edges = ['top', 'bottom', 'left', 'right'], hideBrand = false }: AuthCardProps) {
   return (
     <View className="flex-1 bg-surface">
       <SafeAreaView edges={edges} style={{ flex: 1 }}>

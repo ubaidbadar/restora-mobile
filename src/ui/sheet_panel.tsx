@@ -2,8 +2,8 @@ import { type ReactNode, useEffect } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { GestureDetector, GestureHandlerRootView, usePanGesture } from 'react-native-gesture-handler';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
+import useSafeSpace from '@/hooks/useSafeSpace';
 import type OverlayProps from '@/types/overlay_props';
 import type ShowTools from '@/types/show_tools';
 import IconButton from './icon_button';
@@ -16,7 +16,7 @@ interface SheetPanelProps extends OverlayProps {
   full?: boolean;
   /** The content brings its own list (a FlatList): it is not wrapped in a scroll view. Use with `full`. */
   noScroll?: boolean;
-  /** Stays at the bottom while the content scrolls (e.g. the total and Place order); it keeps clear of the home bar itself. */
+  /** Stays at the bottom while the content scrolls (e.g. the total and Place order); it keeps clear of the home bar itself (`useSafeSpace().bottom`). */
   footer?: ReactNode;
   children: ReactNode | ((tools: ShowTools) => ReactNode);
 }
@@ -30,9 +30,11 @@ const CLOSE = { duration: 200, easing: Easing.in(Easing.cubic) };
  */
 export default function SheetPanel({ title, onBack, full, noScroll, footer, children, ...tools }: SheetPanelProps) {
   const window = useWindowDimensions();
-  const insets = useSafeAreaInsets();
-  const maxHeight = window.height - insets.top - 24;
-  const width = Math.min(window.width, 560);
+  // Below the status bar with room to see the screen behind, inside the notch in landscape, and its last row above the
+  // home indicator or gesture bar, clear of the rounded corners.
+  const space = useSafeSpace();
+  const maxHeight = window.height - space.top - 24;
+  const width = Math.min(window.width - space.sides * 2, 560);
   // 0: off screen, 1: open. `drag`: how far the sheet is pulled down by its handle.
   const progress = useSharedValue(0);
   const drag = useSharedValue(0);
@@ -67,7 +69,7 @@ export default function SheetPanel({ title, onBack, full, noScroll, footer, chil
           <View pointerEvents="box-none" className="flex-1 items-center justify-end">
             <Animated.View
               accessibilityViewIsModal
-              style={[sheetStyle, { width, maxHeight, height: full ? maxHeight : undefined, flexShrink: 1, paddingBottom: footer ? 0 : insets.bottom }]}
+              style={[sheetStyle, { width, maxHeight, height: full ? maxHeight : undefined, flexShrink: 1, paddingBottom: footer ? 0 : space.bottom }]}
               className="rounded-t-panel bg-surface"
             >
               <GestureDetector gesture={pan}>
@@ -85,7 +87,7 @@ export default function SheetPanel({ title, onBack, full, noScroll, footer, chil
               {noScroll ? (
                 <View className="flex-1">{content}</View>
               ) : (
-                <ScrollView keyboardShouldPersistTaps="handled" style={full ? { flex: 1 } : { flexGrow: 0 }} contentContainerClassName="gap-4 px-5 pb-6">
+                <ScrollView keyboardShouldPersistTaps="handled" style={full ? { flex: 1 } : { flexGrow: 0 }} contentContainerClassName="gap-4 px-5 pb-4">
                   {content}
                 </ScrollView>
               )}

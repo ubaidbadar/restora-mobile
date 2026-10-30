@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { Linking, Text, View } from 'react-native';
 import { useCameraPermissions } from 'expo-camera';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import useSafeSpace from '@/hooks/useSafeSpace';
 import Button from '@/ui/button';
 import Icon from '@/ui/icon';
 import IconButton from '@/ui/icon_button';
@@ -12,7 +12,7 @@ import ScanHandler from './scan_handler';
  */
 export default function ScanTablePage() {
   const [permission, requestPermission] = useCameraPermissions();
-  const insets = useSafeAreaInsets();
+  const space = useSafeSpace();
 
   return (
     <View className="flex-1 bg-ink">
@@ -28,7 +28,7 @@ export default function ScanTablePage() {
           </Button>
         </View>
       )}
-      <View style={{ top: insets.top + 8 }} className="absolute start-4">
+      <View style={{ top: space.top + 8, start: space.sides + 16 }} className="absolute">
         <IconButton icon="close" label="Close" variant="soft" onPress={() => router.back()} />
       </View>
     </View>

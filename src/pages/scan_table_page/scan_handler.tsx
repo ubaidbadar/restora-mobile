@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CameraView } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
+import useSafeSpace from '@/hooks/useSafeSpace';
 import getCache from '@/store/get_cache';
 import type FloorTable from '@/types/floor_table';
 import Button from '@/ui/button';
@@ -17,7 +17,7 @@ import toast from '@/utils/toast';
  */
 export default function ScanHandler() {
   const [scan, setScan] = useState({ seen: '', torch: false, failed: false });
-  const bottom = useSafeAreaInsets().bottom;
+  const space = useSafeSpace();
 
   const handle = (data: string) => {
     if (data === scan.seen) return;
@@ -58,7 +58,7 @@ export default function ScanHandler() {
           </View>
         </>
       )}
-      <View style={{ paddingBottom: bottom + 16 }} className="absolute inset-x-0 bottom-0 flex-row items-center justify-center gap-3 px-6">
+      <View style={{ paddingBottom: space.bottom + 8, paddingHorizontal: space.sides + 24 }} className="absolute inset-x-0 bottom-0 flex-row items-center justify-center gap-3">
         {!scan.failed && (
           <IconButton
             icon={scan.torch ? 'flashlight' : 'flashlight-outline'}
