@@ -42,9 +42,17 @@ export default function LiveUpdates() {
         );
         if (created) toast.warning(`Table ${call.tableName ?? ''} ${call.type === 'bill' ? 'asks for the bill' : 'calls a waiter'}`, { label: 'Tables', onClick: () => router.navigate('/tables') });
       },
-      // After a break in the stream, load again what came in between.
+      // After a break in the stream, load again what came in between: once today's board is here, only the orders
+      // changed since its latest change (10 s before, for writes saved late).
       () => {
-        api.get('/orders').then((res) => getCache.set(ordersKey, res.data), () => {});
+        const board = getCache.get(ordersKey) as Order[] | undefined;
+        const latest = board?.every((order) => order.dayKey === dayKey()) ? board.reduce((max, order) => (order.updatedAt && order.updatedAt > max ? order.updatedAt : max), '') : '';
+        if (latest) {
+          const since = new Date(Date.parse(latest) - 10_000).toISOString();
+          api.get<Order[]>('/orders', { params: { since } }).then((res) => getCache.update<Order[]>(ordersKey, (list) => res.data.reduce(upsertById, list ?? [])), () => {});
+        } else {
+          api.get('/orders').then((res) => getCache.set(ordersKey, res.data), () => {});
+        }
         if (getCache.get(floorKey)) api.get('/tables/floor').then((res) => getCache.set(floorKey, res.data), () => {});
       }
     );

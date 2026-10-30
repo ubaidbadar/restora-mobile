@@ -3,7 +3,7 @@ import { FlatList, RefreshControl, View } from 'react-native';
 import EmptyState from '@/components/empty_state';
 import ALL_CATEGORIES from '@/constants/all_categories';
 import type MenuItem from '@/types/menu_item';
-import Tabs from '@/ui/tabs';
+import Chips from '@/ui/chips';
 import SearchField from '@/ui/search_field';
 import filterMenu from '@/utils/filter_menu';
 import upsertById from '@/utils/upsert_by_id';
@@ -31,8 +31,7 @@ export default function DishesTab({ menu, onUpdate, header, refreshing, onRefres
         <View className="gap-2 pb-1">
           {header}
           <SearchField accessibilityLabel="Search dishes" placeholder="Search dishes" value={filter.search} onChangeText={(search) => setFilter({ ...filter, search })} />
-          <Tabs
-            scroll
+          <Chips
             className="-mx-4"
             options={[{ value: ALL_CATEGORIES, label: 'All' }, ...menu.categories.map((category) => ({ value: category._id, label: category.name }))]}
             value={filter.category}

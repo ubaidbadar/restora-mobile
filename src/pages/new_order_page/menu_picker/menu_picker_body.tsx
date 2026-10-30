@@ -5,7 +5,7 @@ import ALL_CATEGORIES from '@/constants/all_categories';
 import type FormComponentProps from '@/types/form_component_props';
 import type Menu from '@/types/menu';
 import type MenuItem from '@/types/menu_item';
-import Tabs from '@/ui/tabs';
+import Chips from '@/ui/chips';
 import SearchField from '@/ui/search_field';
 import MenuGrid from './menu_grid';
 
@@ -33,8 +33,7 @@ export default function MenuPickerBody({ menu, header, ...props }: MenuPickerBod
         </View>
       }
       categories={
-        <Tabs
-          scroll
+        <Chips
           className="py-3"
           options={[{ value: ALL_CATEGORIES, label: 'All' }, ...menu.categories.map((category) => ({ value: category._id, label: category.name }))]}
           value={filter.category}

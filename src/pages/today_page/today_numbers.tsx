@@ -5,7 +5,7 @@ import formatRs from '@/utils/format_rs';
 import BreakdownCard from './breakdown_card';
 import PaymentSplit from './payment_split';
 import SlippingList from './slipping_list';
-import StatGrid from './stat_grid';
+import StatGrid from '@/components/stat_grid';
 import ORDER_TYPE_LABELS from '@/constants/order_type_labels';
 
 /** The numbers: four headline figures, then the breakdowns (two side by side on tablets), then who is slipping away. */
