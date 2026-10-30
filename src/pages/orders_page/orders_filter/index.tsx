@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import FormSheet from '@/components/form_sheet';
 import ORDER_TYPE_OPTIONS from '@/constants/order_type_options';
 import Icon from '@/ui/icon';
+import Chips from '@/ui/chips';
 import Tabs from '@/ui/tabs';
 import dayKey from '@/utils/day_key';
 import dayPresets from '@/utils/day_presets';
@@ -50,12 +51,12 @@ export default function OrdersFilter() {
         <>
           <View className="gap-2">
             <Text className="text-sm font-semibold text-ink">Days</Text>
-            <Tabs {...form.register('days')} options={dayOptions} wrap />
+            <Chips {...form.register('days')} options={dayOptions} wrap />
           </View>
           <PickDays {...form} />
           <View className="gap-2">
             <Text className="text-sm font-semibold text-ink">Order type</Text>
-            <Tabs {...form.register('type')} options={ORDER_TYPE_OPTIONS} wrap />
+            <Chips {...form.register('type')} options={ORDER_TYPE_OPTIONS} wrap />
           </View>
           <View className="gap-2">
             <Text className="text-sm font-semibold text-ink">Show today&apos;s orders as</Text>

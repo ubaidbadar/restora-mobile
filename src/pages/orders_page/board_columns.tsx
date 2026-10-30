@@ -6,7 +6,7 @@ import WIDE_WIDTH from '@/constants/wide_width';
 import type Order from '@/types/order';
 import Chip from '@/ui/chip';
 import Button from '@/ui/button';
-import Tabs from '@/ui/tabs';
+import Chips from '@/ui/chips';
 import BoardColumn from './board_column';
 import ColumnEmpty from './column_empty';
 import type BoardProps from './board_props';
@@ -88,8 +88,7 @@ export default function BoardColumns({ orders, header, refreshing, onRefresh, on
         // The same tabs as the customer list's filters (the web's status tabs), with each status's count.
         <View>
           {header}
-          <Tabs
-            scroll
+          <Chips
             className="-mx-4 py-2"
             options={views.map((view) => ({ value: view.status, label: STATUS_LABELS[view.status], count: view.count }))}
             value={current.status}

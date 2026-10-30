@@ -18,8 +18,10 @@ interface TabsProps {
 }
 
 /**
- * The app's one tab strip (the web's `ui/tabs`): page tabs, filters and picked-one choices in forms. A sunken grey
- * track edged with a border, the picked option raised on the surface. Without `scroll` or `wrap` the options share the width equally.
+ * The segmented control (the web's `ui/tabs`): two or three short options that flip a view or a small setting. A sunken
+ * grey track edged with a border, the picked option raised on the surface. Without `scroll` or `wrap` the options share
+ * the width equally. Filters and longer choices are `ui/chips`, a choice that changes what happens next is
+ * `ui/choice_cards`, parts of a screen are `ui/page_tabs`.
  */
 function TabsView({ options, value, onChange, scroll = false, wrap = false, className = '' }: TabsProps) {
   const even = !scroll && !wrap;

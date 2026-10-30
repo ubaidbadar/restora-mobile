@@ -8,7 +8,7 @@ import STATUS_LABELS from '@/constants/status_labels';
 import useGet from '@/hooks/useGet';
 import type OrderHistory from '@/types/order_history';
 import type OrderStatus from '@/types/order_status';
-import Tabs from '@/ui/tabs';
+import Chips from '@/ui/chips';
 import formatRs from '@/utils/format_rs';
 import HistoryOrderSheet from './history_order_sheet';
 import LoadMore from './load_more';
@@ -68,8 +68,7 @@ export default function OrderHistoryScreen({ from, to, header }: OrderHistoryScr
               <Text className="text-sm text-muted"><Text className="font-semibold text-ink">{cancelled}</Text> cancelled</Text>
             </View>
           </View>
-          <Tabs
-            scroll
+          <Chips
             className="-mx-4"
             options={[{ value: 'all', label: 'All', count: summary.count }, ...STATUSES.map((value) => ({ value: value as string, label: STATUS_LABELS[value], count: byStatus(value) }))]}
             value={status}

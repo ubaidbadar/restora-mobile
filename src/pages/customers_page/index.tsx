@@ -16,7 +16,7 @@ import useGet from '@/hooks/useGet';
 import type Customer from '@/types/customer';
 import type Segment from '@/types/segment';
 import Button from '@/ui/button';
-import Tabs from '@/ui/tabs';
+import Chips from '@/ui/chips';
 import IconButton from '@/ui/icon_button';
 import SearchField from '@/ui/search_field';
 import toast from '@/utils/toast';
@@ -55,7 +55,7 @@ export default function CustomersPage() {
         </Can>
       </PageHeader>
       <SearchField accessibilityLabel="Search customers by name or phone" placeholder="Name or phone" autoCapitalize="none" value={search} onChangeText={setSearch} />
-      <Tabs scroll className="-mx-4" options={FILTERS} value={seg} onChange={(value) => router.setParams({ seg: value })} />
+      <Chips className="-mx-4" options={FILTERS} value={seg} onChange={(value) => router.setParams({ seg: value })} />
     </View>
   );
 

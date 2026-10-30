@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import BOARD_STATUSES from '@/constants/board_statuses';
 import STATUS_LABELS from '@/constants/status_labels';
 import type Order from '@/types/order';
-import Tabs from '@/ui/tabs';
+import Chips from '@/ui/chips';
 import type BoardProps from './board_props';
 import ColumnEmpty from './column_empty';
 import TodayOrderRow from './today_order_row';
@@ -28,7 +28,7 @@ export default function TodayList({ orders, header, refreshing, onRefresh }: Boa
       ListHeaderComponent={
         <View className="pb-1">
           {header}
-          <Tabs scroll className="-mx-4 py-2" options={tabs} value={status} onChange={(value) => router.setParams({ status: value === 'all' ? undefined : value })} />
+          <Chips className="-mx-4 py-2" options={tabs} value={status} onChange={(value) => router.setParams({ status: value === 'all' ? undefined : value })} />
         </View>
       }
       ListEmptyComponent={<ColumnEmpty />}
