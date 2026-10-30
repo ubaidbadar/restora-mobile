@@ -1,10 +1,11 @@
-import { FlatList, RefreshControl, ScrollView, useWindowDimensions, View } from 'react-native';
+import { FlatList, RefreshControl, useWindowDimensions, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import BOARD_STATUSES from '@/constants/board_statuses';
 import STATUS_LABELS from '@/constants/status_labels';
 import WIDE_WIDTH from '@/constants/wide_width';
 import type Order from '@/types/order';
 import Chip from '@/ui/chip';
+import Tabs from '@/ui/tabs';
 import BoardColumn from './board_column';
 import ColumnEmpty from './column_empty';
 import type BoardProps from './board_props';
@@ -65,20 +66,16 @@ export default function BoardColumns({ orders, header, refreshing, onRefresh, on
       renderItem={({ item }) => <OrderCard order={item} onOrderUpdated={onOrderUpdated} />}
       refreshControl={refresh}
       ListHeaderComponent={
-        // The same chips as the customer list's filters (the web's status chips), with each status's count.
+        // The same tabs as the customer list's filters (the web's status tabs), with each status's count.
         <View>
           {header}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} className="-mx-4" contentContainerClassName="gap-2 px-4 py-2">
-          {views.map((view) => (
-            <Chip
-              key={view.status}
-              label={STATUS_LABELS[view.status]}
-              count={view.orders.length}
-              selected={view.status === current.status}
-              onPress={() => router.setParams({ status: view.status })}
-            />
-          ))}
-        </ScrollView>
+          <Tabs
+            scroll
+            className="-mx-4 py-2"
+            options={views.map((view) => ({ value: view.status, label: STATUS_LABELS[view.status], count: view.orders.length }))}
+            value={current.status}
+            onChange={(value) => router.setParams({ status: value })}
+          />
         </View>
       }
       ListEmptyComponent={<ColumnEmpty />}

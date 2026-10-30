@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import ALL_CATEGORIES from '@/constants/all_categories';
 import type FormComponentProps from '@/types/form_component_props';
 import type Menu from '@/types/menu';
 import type MenuItem from '@/types/menu_item';
-import Chip from '@/ui/chip';
+import Tabs from '@/ui/tabs';
 import SearchField from '@/ui/search_field';
 import MenuGrid from './menu_grid';
 
@@ -33,11 +33,13 @@ export default function MenuPickerBody({ menu, header, ...props }: MenuPickerBod
         </View>
       }
       categories={
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={{ flexGrow: 0 }} contentContainerClassName="gap-2 px-4 py-3">
-          {[{ _id: ALL_CATEGORIES, name: 'All' }, ...menu.categories].map((category) => (
-            <Chip key={category._id} label={category.name} selected={filter.category === category._id} onPress={() => setFilter({ ...filter, category: category._id })} />
-          ))}
-        </ScrollView>
+        <Tabs
+          scroll
+          className="py-3"
+          options={[{ value: ALL_CATEGORIES, label: 'All' }, ...menu.categories.map((category) => ({ value: category._id, label: category.name }))]}
+          value={filter.category}
+          onChange={(category) => setFilter({ ...filter, category })}
+        />
       }
     />
   );
