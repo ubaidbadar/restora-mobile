@@ -18,13 +18,13 @@ interface TabsProps {
 }
 
 /**
- * The app's one tab strip (the web's `ui/tabs`): page tabs, filters and picked-one choices in forms. A light primary
- * track with the picked option filled in primary. Without `scroll` or `wrap` the options share the width equally.
+ * The app's one tab strip (the web's `ui/tabs`): page tabs, filters and picked-one choices in forms. A sunken grey
+ * track with the picked option raised on the surface. Without `scroll` or `wrap` the options share the width equally.
  */
 function TabsView({ options, value, onChange, scroll = false, wrap = false, className = '' }: TabsProps) {
   const even = !scroll && !wrap;
   const track = (
-    <View accessibilityRole="radiogroup" className={`flex-row gap-1 rounded-control bg-primary-soft p-1 ${wrap ? 'flex-wrap' : ''} ${scroll || wrap ? 'self-start' : ''}`}>
+    <View accessibilityRole="radiogroup" className={`flex-row gap-1 rounded-control bg-sunken p-1 ${wrap ? 'flex-wrap' : ''} ${scroll || wrap ? 'self-start' : ''}`}>
       {options.map((option) => {
         const selected = option.value === value;
         return (
@@ -37,13 +37,13 @@ function TabsView({ options, value, onChange, scroll = false, wrap = false, clas
               void Haptics.selectionAsync();
               onChange?.(option.value);
             }}
-            className={`min-h-10 flex-row items-center justify-center gap-2 rounded-small px-3 ${even ? 'flex-1' : ''} ${selected ? 'bg-primary' : 'active:opacity-60'}`}
+            className={`min-h-10 flex-row items-center justify-center gap-2 rounded-small px-3 ${even ? 'flex-1' : ''} ${selected ? 'border border-border bg-surface' : 'active:opacity-60'}`}
           >
-            <Text numberOfLines={1} adjustsFontSizeToFit={even} minimumFontScale={0.85} className={`text-sm ${selected ? 'font-semibold text-on-primary' : 'font-medium text-body'}`}>
+            <Text numberOfLines={1} adjustsFontSizeToFit={even} minimumFontScale={0.85} className={`text-sm ${selected ? 'font-semibold text-ink' : 'font-medium text-body'}`}>
               {option.label}
             </Text>
             {option.count !== undefined && (
-              <Text className={`min-w-5 rounded-small px-1 text-center text-xs font-semibold ${selected ? 'bg-primary-hover text-on-primary' : 'bg-surface text-muted'}`}>{option.count}</Text>
+              <Text className={`min-w-5 rounded-small px-1 text-center text-xs font-semibold text-muted ${selected ? 'bg-sunken' : 'bg-surface'}`}>{option.count}</Text>
             )}
           </Pressable>
         );
