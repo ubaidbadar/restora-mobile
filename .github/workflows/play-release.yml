@@ -102,11 +102,27 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           {
+            echo ""
             echo "MYAPP_UPLOAD_STORE_FILE=upload-keystore.keystore"
             echo "MYAPP_UPLOAD_KEY_ALIAS=$KEY_ALIAS"
             echo "MYAPP_UPLOAD_STORE_PASSWORD=$KEYSTORE_PASSWORD"
             echo "MYAPP_UPLOAD_KEY_PASSWORD=$KEY_PASSWORD"
           } >> android/gradle.properties
+
+      - name: Configure release signing
+        if: steps.aab-cache.outputs.cache-hit != 'true'
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = "android/app/build.gradle";
+            let content = fs.readFileSync(file, "utf8");
+            const releaseSigning = `        release {\n            if (project.hasProperty("MYAPP_UPLOAD_STORE_FILE")) {\n                storeFile file(MYAPP_UPLOAD_STORE_FILE)\n                storePassword MYAPP_UPLOAD_STORE_PASSWORD\n                keyAlias MYAPP_UPLOAD_KEY_ALIAS\n                keyPassword MYAPP_UPLOAD_KEY_PASSWORD\n            }\n        }\n`;
+            if (!content.includes("signingConfigs.release")) {
+              content = content.replace("signingConfigs {", "signingConfigs {\n" + releaseSigning);
+              content = content.replace(/signingConfig signingConfigs\.debug(\s+def enableShrinkResources)/, "signingConfig (project.hasProperty(\"MYAPP_UPLOAD_STORE_FILE\") ? signingConfigs.release : signingConfigs.debug)$1");
+              fs.writeFileSync(file, content, "utf8");
+            }
+          '
 
       - name: Set version code
         if: steps.aab-cache.outputs.cache-hit != 'true'
