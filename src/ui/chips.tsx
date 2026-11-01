@@ -7,7 +7,7 @@ interface ChipsProps {
   /** With `control`, the form field (`{...register('reason')}`). */
   name?: string;
   control?: Control<FieldValues>;
-  options: { value: string; label: string; count?: number; icon?: IconName }[];
+  options: { value: string; label: string; count?: number; icon?: IconName; dot?: boolean }[];
   value?: string;
   onChange?: (value: string) => void;
   /** Wrap onto more lines (choices in a form) instead of one line that scrolls sideways (a list's filter). */
@@ -22,7 +22,7 @@ interface ChipsProps {
  */
 function ChipsView({ options, value, onChange, wrap = false, className = '' }: ChipsProps) {
   const chips = options.map((option) => (
-    <Chip key={option.value} label={option.label} count={option.count} icon={option.icon} selected={option.value === value} onPress={() => option.value !== value && onChange?.(option.value)} />
+    <Chip key={option.value} label={option.label} count={option.count} icon={option.icon} dot={option.dot} selected={option.value === value} onPress={() => option.value !== value && onChange?.(option.value)} />
   ));
   if (wrap) {
     return (

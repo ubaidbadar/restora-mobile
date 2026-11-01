@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import ORDER_TYPE_LABELS from '@/constants/order_type_labels';
 import STATUS_LABELS from '@/constants/status_labels';
+import useOrderAlertStore from '@/store/order_alert_store';
 import type OrderRow from '@/types/order_row';
 import Badge from '@/ui/badge';
 import formatDay from '@/utils/format_day';
@@ -20,8 +21,16 @@ const paymentBadges = { paid: ['success', 'Paid'], unpaid: ['warning', 'Unpaid']
 /** One order in two short lines: token, customer and total; then time, type or table, dishes, status and payment. */
 export default function OrderRowLine({ order, showDay = false, onPress }: OrderRowLineProps) {
   const [paymentVariant, paymentLabel] = paymentBadges[order.paymentStatus];
+  const isNew = useOrderAlertStore((state) => state.fresh.includes(order._id));
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} className="min-h-16 flex-row items-center gap-3 rounded-card bg-surface px-4 py-2.5 active:bg-sunken">
+    <Pressable
+      accessibilityRole="button"
+      onPress={() => {
+        useOrderAlertStore.getState().seen(order._id);
+        onPress();
+      }}
+      className={`min-h-16 flex-row items-center gap-3 rounded-card bg-surface px-4 py-2.5 active:bg-sunken ${isNew ? 'border-2 border-primary' : ''}`}
+    >
       <Text className="w-12 text-lg font-semibold text-ink">#{order.dailyToken}</Text>
       <View className="min-w-0 flex-1 gap-0.5">
         <Text numberOfLines={1} className="font-medium text-ink">

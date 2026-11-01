@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import BOARD_STATUSES from '@/constants/board_statuses';
 import STATUS_LABELS from '@/constants/status_labels';
 import WIDE_WIDTH from '@/constants/wide_width';
+import useOrderAlertStore from '@/store/order_alert_store';
 import type Order from '@/types/order';
 import Chip from '@/ui/chip';
 import Button from '@/ui/button';
@@ -30,6 +31,7 @@ const pendingFirst = (a: Order, b: Order) => Number(b.status === 'pending') - Nu
 export default function BoardColumns({ orders, header, refreshing, onRefresh, onOrderUpdated }: BoardProps) {
   const wide = useWindowDimensions().width >= WIDE_WIDTH;
   const { status = 'new' } = useLocalSearchParams<{ status?: Shown }>();
+  const fresh = useOrderAlertStore((state) => state.fresh);
   const shown = orders.filter((order) => order.status !== 'cancelled');
   const columns = BOARD_STATUSES.map((value) => {
     const orders = shown.filter((order) => inColumn(order, value)).sort(pendingFirst);
@@ -90,7 +92,7 @@ export default function BoardColumns({ orders, header, refreshing, onRefresh, on
           {header}
           <Chips
             className="-mx-4 py-2"
-            options={views.map((view) => ({ value: view.status, label: STATUS_LABELS[view.status], count: view.count }))}
+            options={views.map((view) => ({ value: view.status, label: STATUS_LABELS[view.status], count: view.count, dot: view.orders.some((order) => fresh.includes(order._id)) }))}
             value={current.status}
             onChange={(value) => router.setParams({ status: value })}
           />

@@ -11,11 +11,12 @@ import ManageSection from './manage_section';
 import MoreSection from './more_section';
 import PagesSection from './pages_section';
 import SignOutButton from './sign_out_button';
+import SoundRow from './sound_row';
 import SyncSection from './sync_section';
 import WebSection from './web_section';
 import WorkplaceSection from './workplace_section';
 
-/** Who you are and where you work, offline sync, appearance, the web app, and signing out. */
+/** Who you are and where you work, the new-order chime, offline sync, appearance, the web app, and signing out. */
 export default function MorePage() {
   return (
     <TabScreen>
@@ -26,6 +27,9 @@ export default function MorePage() {
       <ManageSection />
       <MoreSection title="Working at">
         <WorkplaceSection />
+      </MoreSection>
+      <MoreSection title="Alerts">
+        <SoundRow />
       </MoreSection>
       <MoreSection title="Offline">
         <SyncSection />

@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import ORDER_TYPE_LABELS from '@/constants/order_type_labels';
+import useOrderAlertStore from '@/store/order_alert_store';
 import type Order from '@/types/order';
 import Badge from '@/ui/badge';
 import Button from '@/ui/button';
@@ -40,18 +41,23 @@ export default function OrderCardBody({ order, actions, advanceLabel, payable, o
   const finished = order.status === 'completed' || cancelled;
   const hidden = order.items.length - SHOWN_LINES;
   const itemCount = order.items.reduce((sum, item) => sum + item.qty, 0);
+  // Just came in on the live stream: outlined until someone opens it or moves it on.
+  const isNew = useOrderAlertStore((state) => state.fresh.includes(order._id));
 
   return (
     <Pressable
       accessibilityLabel={`Order ${order.dailyToken}, ${ORDER_TYPE_LABELS[order.type]}, ${formatRs(order.total)}, ${cancelled ? 'cancelled' : paymentLabel}`}
       accessibilityHint="Opens the details. Long press for every action."
-      onPress={onPress}
+      onPress={() => {
+        useOrderAlertStore.getState().seen(order._id);
+        onPress();
+      }}
       onLongPress={() => {
         void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         onMenu();
       }}
       delayLongPress={350}
-      className="gap-3 rounded-card border border-border bg-surface p-4 active:bg-sunken"
+      className={`gap-3 rounded-card bg-surface p-4 active:bg-sunken ${isNew ? 'border-2 border-primary' : 'border border-border'}`}
     >
       <View className="flex-row items-start justify-between gap-3">
         <Text className="text-display font-bold text-ink">#{order.dailyToken}</Text>
@@ -66,6 +72,7 @@ export default function OrderCardBody({ order, actions, advanceLabel, payable, o
             {/* A cancelled order is not owed; only say it if money had changed hands. */}
             {!(cancelled && order.paymentStatus === 'unpaid') && <Badge variant={paymentVariant}>{paymentLabel}</Badge>}
           </View>
+          {isNew && <Badge variant="primary">Just in</Badge>}
           {order.pendingSync && <Badge>Waiting to sync</Badge>}
           {order.status === 'pending' && <Badge variant="warning">From table QR</Badge>}
         </View>

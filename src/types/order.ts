@@ -44,4 +44,6 @@ export default interface Order {
   updatedAt?: string;
   /** Taken without internet and still waiting on this device to be sent. */
   pendingSync?: boolean;
+  /** Made on the device that took the order (see `utils/own_orders`). */
+  clientId?: string;
 }
