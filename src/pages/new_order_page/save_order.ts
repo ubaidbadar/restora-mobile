@@ -5,6 +5,7 @@ import type Order from '@/types/order';
 import type SubmitProps from '@/types/submit_props';
 import printSlip from '@/utils/print_slip';
 import syncOutbox from '@/utils/sync_outbox';
+import ownOrders from '@/utils/own_orders';
 import toast from '@/utils/toast';
 import upsertById from '@/utils/upsert_by_id';
 import offlineOrder from './offline_order';
@@ -17,6 +18,7 @@ import offlineToken from './offline_token';
 export default function saveOrder({ data, onSuccess, onError }: SubmitProps) {
   const clientId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
   const body = { ...data, clientId, placedAt: new Date().toISOString() };
+  ownOrders.add(clientId);
   const finish = (message: string, order?: Order) => {
     toast.success(message, order && { label: 'Print slip', onClick: () => void printSlip(order, 'kitchen') });
     onSuccess('');
