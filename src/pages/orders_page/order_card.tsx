@@ -59,13 +59,24 @@ export default function OrderCard({ order, onOrderUpdated }: OrderCardProps) {
       cancelledBy: me?.user.name,
       cancelledAt: new Date().toISOString(),
     };
+    const cancelSlipOrder: Order = {
+      ...order,
+      status: 'cancelled',
+      dailyToken: `${token} CANCELLED`,
+      cancellation: { ...body, byName: me?.user.name, at: cancelMeta.cancelledAt },
+      items: order.items.map((item) => ({
+        ...item,
+        name: item.name.startsWith('CANCEL ') ? item.name : `CANCEL ${item.name}`,
+      })),
+    };
     return changeOrder(
       order,
       'post',
       `/orders/${order._id}/cancel`,
       cancelMeta,
       fromTable ? `Order #${token} turned down` : `Order #${token} cancelled`,
-      onOrderUpdated
+      onOrderUpdated,
+      cancelSlipOrder
     );
   };
 
