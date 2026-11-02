@@ -38,10 +38,36 @@ export default function OrderCard({ order, onOrderUpdated }: OrderCardProps) {
   // Dishes can change until the order is on the way or done, while the bill is still open.
   const editable = Boolean(next) && order.status !== 'out_for_delivery' && order.paymentStatus === 'unpaid' && !order.pendingSync;
 
-  const advance = () =>
-    next && changeOrder(order, 'patch', `/orders/${order._id}`, { status: next }, fromTable ? `Order #${token} accepted` : `Order #${token} moved to ${STATUS_LABELS[next]}`, onOrderUpdated);
-  const cancel = (body: Pick<OrderCancellation, 'reason' | 'note'>) =>
-    changeOrder(order, 'post', `/orders/${order._id}/cancel`, body, fromTable ? `Order #${token} turned down` : `Order #${token} cancelled`, onOrderUpdated);
+  const advance = () => {
+    const me = useAuthStore.getState().me;
+    return (
+      next &&
+      changeOrder(
+        order,
+        'patch',
+        `/orders/${order._id}`,
+        { status: next, updatedBy: me?.user.name, updatedAt: new Date().toISOString() },
+        fromTable ? `Order #${token} accepted` : `Order #${token} moved to ${STATUS_LABELS[next]}`,
+        onOrderUpdated
+      )
+    );
+  };
+  const cancel = (body: Pick<OrderCancellation, 'reason' | 'note'>) => {
+    const me = useAuthStore.getState().me;
+    const cancelMeta = {
+      ...body,
+      cancelledBy: me?.user.name,
+      cancelledAt: new Date().toISOString(),
+    };
+    return changeOrder(
+      order,
+      'post',
+      `/orders/${order._id}/cancel`,
+      cancelMeta,
+      fromTable ? `Order #${token} turned down` : `Order #${token} cancelled`,
+      onOrderUpdated
+    );
+  };
 
   const advanceLabel = next ? (ADVANCE_LABELS[next] ?? 'Move on') : undefined;
   // Edit, print and cancel: under ⋯ and long-press after the main actions, and as rows in the details sheet.
