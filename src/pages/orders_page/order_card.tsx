@@ -26,7 +26,8 @@ interface OrderCardProps {
  * record payment. Long-press or ⋯: every action.
  */
 export default function OrderCard({ order, onOrderUpdated }: OrderCardProps) {
-  const workplace = useAuthStore((state) => state.me?.workplace);
+  const me = useAuthStore((state) => state.me);
+  const workplace = me?.workplace;
   // Each action shows only with its permission (the server checks again).
   const next = can(workplace, 'orders:update') ? nextStatus(order) : null;
   const token = order.dailyToken;
@@ -39,9 +40,24 @@ export default function OrderCard({ order, onOrderUpdated }: OrderCardProps) {
   const editable = Boolean(next) && order.status !== 'out_for_delivery' && order.paymentStatus === 'unpaid' && !order.pendingSync;
 
   const advance = () =>
-    next && changeOrder(order, 'patch', `/orders/${order._id}`, { status: next }, fromTable ? `Order #${token} accepted` : `Order #${token} moved to ${STATUS_LABELS[next]}`, onOrderUpdated);
+    next &&
+    changeOrder(
+      order,
+      'patch',
+      `/orders/${order._id}`,
+      { status: next, updatedBy: me?.user.name, updatedAt: new Date().toISOString() },
+      fromTable ? `Order #${token} accepted` : `Order #${token} moved to ${STATUS_LABELS[next]}`,
+      onOrderUpdated
+    );
   const cancel = (body: Pick<OrderCancellation, 'reason' | 'note'>) =>
-    changeOrder(order, 'post', `/orders/${order._id}/cancel`, body, fromTable ? `Order #${token} turned down` : `Order #${token} cancelled`, onOrderUpdated);
+    changeOrder(
+      order,
+      'post',
+      `/orders/${order._id}/cancel`,
+      { ...body, cancelledBy: me?.user.name, cancelledAt: new Date().toISOString() },
+      fromTable ? `Order #${token} turned down` : `Order #${token} cancelled`,
+      onOrderUpdated
+    );
 
   const advanceLabel = next ? (ADVANCE_LABELS[next] ?? 'Move on') : undefined;
   // Edit, print and cancel: under ⋯ and long-press after the main actions, and as rows in the details sheet.

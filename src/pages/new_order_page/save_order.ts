@@ -1,5 +1,6 @@
 import api from '@/config/api';
 import getCache from '@/store/get_cache';
+import useAuthStore from '@/store/auth_store';
 import useOutboxStore from '@/store/outbox_store';
 import type Order from '@/types/order';
 import type SubmitProps from '@/types/submit_props';
@@ -16,8 +17,9 @@ import offlineToken from './offline_token';
  * sent later. Made here, the clientId keeps it from being saved twice however many times it is sent.
  */
 export default function saveOrder({ data, onSuccess, onError }: SubmitProps) {
+  const me = useAuthStore.getState().me;
   const clientId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
-  const body = { ...data, clientId, placedAt: new Date().toISOString() };
+  const body = { ...data, clientId, placedAt: new Date().toISOString(), takenBy: me?.user.name };
   ownOrders.add(clientId);
   const finish = (message: string, order?: Order) => {
     toast.success(message, order && { label: 'Print slip', onClick: () => void printSlip(order, 'kitchen') });
