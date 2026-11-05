@@ -2,7 +2,7 @@ name: Build Android APK and iOS IPA
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev, stage]
   workflow_dispatch:
 
 permissions:
