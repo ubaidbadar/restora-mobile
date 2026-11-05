@@ -1,112 +1,98 @@
-# Automatic Android APK and iOS IPA builds
+# Android APK builds on GitHub Actions (without EAS Build)
 
-The GitHub Actions workflow [mobile-build.yml](../.github/workflows/mobile-build.yml) uses
-Expo Application Services (EAS) to build two internally distributable **preview** packages:
+The [Android APK workflow](../.github/workflows/mobile-build.yml) compiles the
+Restora Android app **on a GitHub-hosted Ubuntu runner** with Expo's local
+prebuild and Android Gradle. It does not request a build from Expo's cloud
+service and does not incur Expo EAS Build queue/priority charges.
 
-- Android: `Restora-android.apk` (installable on compatible Android phones).
-- iOS: `Restora-ios.ipa` (installable on iPhones/iPads covered by your Apple ad hoc provisioning profile).
+- **APK:** `Restora-android.apk`, a standalone release build that does not
+  require an Expo/Metro development server.
+- **Branches:** `main`, `dev`, `stage`, or manual Actions → Run workflow.
+- **iOS:** not built by this workflow for now.
+- **Play Store:** the separate `play-release.yml` publishes an AAB from
+  `stage` and `main`; it is unchanged.
 
-It runs on pushes to `main`, `dev`, and `stage` or via **Actions → Build Android APK and iOS IPA → Run workflow**.
-Android and iOS build independently. These are **not app-store submissions**.
-The separate `play-release.yml` builds an AAB with Gradle for Google Play on `stage` and `main`; it does not use EAS Build.
+Expo is still the JavaScript/native framework, and the Expo **Push API** remains
+available to the backend for phone notifications. No Expo EAS cloud build is used.
 
-## Required versus optional configuration
+## Setup: what is required and optional?
 
-| Item | Where | Requirement |
+| Configuration | Needed for APK? | Where |
 | --- | --- | --- |
-| Expo project ID | `app.json` → `expo.extra.eas.projectId` | **Required**, already committed to this repository |
-| Expo project owner | `app.json` → `expo.owner` | **Required**, already committed |
-| `EXPO_TOKEN` | GitHub Actions **secret** | **Required** for EAS APK/IPA workflow |
-| `EAS_PROJECT_ID` | GitHub Actions variable | **Not required** — don't create it |
-| Android signing credentials | Expo EAS credentials | **Required** for signed EAS Android builds; initialize once |
-| Apple Developer membership, registered devices, iOS signing | Apple Developer and Expo EAS | **Required** to create/install iPhone device IPAs |
-| `EXPO_PUBLIC_API_URL` | EAS preview build environment | Optional: defaults to `https://restora.live` in release |
-| `EXPO_PUBLIC_WEB_URL` | EAS preview build environment | Recommended for release: app's current fallback uses a local web server |
-| Google OAuth client IDs | EAS preview build environment | Optional, for native Google sign-in |
-| Firebase Android config and FCM V1, Apple APNs | Expo/EAS credentials and file environment | Optional for builds; required to use push alerts on the respective platform |
+| GitHub Actions `EXPO_TOKEN` | **No** | Not used |
+| GitHub `EAS_PROJECT_ID` variable | **No** | Already in `app.json` |
+| Expo EAS Build subscription / credentials | **No** | Not used |
+| Apple Developer account / APNs key | **No** | iOS builds disabled |
+| Google Play service account | **No** | Only separate Play release workflow |
+| Android release keystore secrets (four) | **Optional** | GitHub Actions secrets |
+| `GOOGLE_SERVICES_JSON` | Optional | GitHub Actions secret, for Android push |
+| Firebase FCM V1 credentials | Not for APK creation | Required separately for live Android push |
+| `EXPO_PUBLIC_API_URL` | Optional | GitHub Actions variable; defaults to `https://restora.live` |
+| `EXPO_PUBLIC_WEB_URL` | Optional | GitHub Actions variable; defaults to `https://app.restora.live` |
 
-Your backend's `EXPO_ACCESS_TOKEN` and `WEB_PUSH_PUBLIC_KEY`/`WEB_PUSH_PRIVATE_KEY`
-are used by **restora-backend**, not by GitHub mobile build authentication.
-They are not substitutes for `EXPO_TOKEN`.
+The app's Expo Project ID is committed under
+`app.json → expo.extra.eas.projectId`, along with `expo.owner`.
+Do not remove it: the mobile push token registration uses it even though
+**the APK build does not authenticate to EAS**.
 
-## One-time setup
+The backend `EXPO_ACCESS_TOKEN`, `WEB_PUSH_PUBLIC_KEY`, and
+`WEB_PUSH_PRIVATE_KEY` remain **backend-only**. They are not required in
+the mobile repository and should never be copied into `EXPO_PUBLIC_*` variables.
 
-### 1. Confirm the committed Expo project linkage
+### Optional Android signing
 
-The Expo project is already linked in this repository's `app.json`, under
-`expo.extra.eas.projectId` and `expo.owner`. Do **not** run `eas init` again or
-create another Expo project unless you intentionally want to change ownership/linkage.
-The workflow checks for the committed project ID and fails with a clear error if it is missing.
-No GitHub `EAS_PROJECT_ID` repository variable is used.
+The workflow can reuse all four signing secrets already used by the separate
+Play Store workflow:
 
-### 2. Add the GitHub Actions secret
+- `ANDROID_KEYSTORE_BASE64` — base64-encoded keystore contents.
+- `KEYSTORE_PASSWORD`
+- `KEY_ALIAS`
+- `KEY_PASSWORD`
 
-In **Repository → Settings → Secrets and variables → Actions → New repository secret**, set:
+If none are set, the generated standalone release APK uses the Android
+debug key provided by the GitHub runner. That APK can be installed for
+testing, but its signature is not stable between fresh runners, so it may
+not update a previously installed APK. For repeatable upgrades, configure
+all four signing secrets. If only some are set, the workflow fails clearly.
 
-| Type | Name | Value |
-| --- | --- | --- |
-| Repository secret | `EXPO_TOKEN` | Expo access token from https://expo.dev/settings/access-tokens |
+A key used to upload to Google Play may be different from the **app-signing
+key** that Google uses to distribute apps; even a consistently signed test
+APK may not upgrade a Play-installed app.
 
-The token must have access to the Expo account that owns the `app.json` project.
-Never commit tokens, Apple private keys, or signing keys to Git.
+### Optional Android push notifications
 
-### 3. Initialize signing interactively before CI builds
+To enable Android notifications, add the full Firebase `google-services.json`
+contents as the repository secret `GOOGLE_SERVICES_JSON`; the workflow
+writes a temporary file before `expo prebuild`. Also configure the
+relevant FCM V1 credentials with Expo for push delivery. Without it,
+the APK can still run but device push delivery is not set up.
 
-From a local checkout, sign in with the Expo account and run:
+## Download your APK
 
-```sh
-npx eas-cli@latest login
-npx eas-cli@latest build --platform android --profile preview
-```
+1. Go to **GitHub → Actions → Build Android APK (GitHub runner)**.
+2. Choose `main`, `dev`, or `stage`, then **Run workflow**.
+3. Open the run and let the Android Gradle build finish.
+4. Download the `Restora-android-<run number>` artifact.
+5. Unzip it to get `Restora-android.apk`.
 
-Allow EAS to create credentials, or reuse your existing Android app signing key if
-preview APKs need to install over an existing Play Store version. An APK signed by
-a different key cannot upgrade the installed app.
-
-For an installable **iPhone device IPA**, you need a paid Apple Developer membership.
-Register intended devices and complete the initial EAS signing prompts:
-
-```sh
-npx eas-cli@latest device:create
-npx eas-cli@latest build --platform ios --profile preview
-```
-
-New devices must be covered by the updated Apple ad hoc provisioning profile.
-An iOS IPA from this preview workflow is not a TestFlight or App Store release.
-
-After signed builds have been initialized interactively, CI can reuse the stored
-EAS credentials in non-interactive builds.
-
-### 4. Optional build-time app settings
-
-For the cloud build, set any needed `EXPO_PUBLIC_*` variables in Expo's **preview**
-environment. A GitHub Actions repository variable alone will not be sent to the
-EAS cloud build. See `../.env.example` for defaults and distinctions.
-
-For native push notifications, the committed Expo project ID is necessary but
-not sufficient: Android requires Firebase configuration and FCM credentials;
-iOS requires APNs credentials. The backend's browser VAPID keys are independent.
-
-### 5. Download packages
-
-When an Actions run succeeds, scroll to **Artifacts** and download
-`Restora-android-<run number>` and/or `Restora-ios-<run number>`.
-Unzip the downloaded GitHub artifact to retrieve the `.apk`/`.ipa`.
-Artifacts are kept for **30 days**; Expo build quotas apply.
+Artifacts are retained for **30 days**. GitHub Actions runner quotas may apply,
+but the APK no longer uses the Expo paid build queue.
 
 ## Troubleshooting
 
-- **Missing EXPO_TOKEN:** Create the GitHub Actions repository secret.
-- **Missing Expo project ID:** Commit `expo.extra.eas.projectId` and `expo.owner` in `app.json` for the branch.
-- **Non-interactive signing error:** Finish an interactive EAS build for that platform.
-- **iOS install rejected:** Register the device and refresh the ad hoc provisioning profile.
-- **APK won't update installed app:** Use matching Android signing keys/package ID, or uninstall the old app.
-- **Native compilation failure:** Open the EAS build logs linked from GitHub Actions.
-- **Stage branch note:** Its existing Android/iOS app IDs differ from `main`/`dev`.
-  The project linkage is shared, but signing credentials and package identity can differ;
-  do not change the identifiers accidentally.
+- **Gradle error:** Inspect the GitHub job logs. The workflow forces an empty
+  watched-directories JSON list because Restora doesn't configure Expo inline
+  modules; this targets a prior `expo:generateInlineModules` parsing failure.
+  Other native compilation errors may still require code changes.
+- **APK not generated:** Check the Gradle `assembleRelease` step; no Expo
+  EAS build or signing initialization is attempted.
+- **App cannot reach backend:** Review `EXPO_PUBLIC_API_URL` and backend
+  accessibility; production defaults to `https://restora.live`.
+- **Cannot install over existing app:** Signing key or Android package ID
+  mismatch. `stage` currently has a different Android package name from
+  `main`/`dev`, and the workflow does not alter it.
+- **Google Play AAB fails:** The separate `play-release.yml` Gradle job has
+  its own build and publishing steps; errors there are independent of the
+  downloadable APK job.
 
-Reference:
-- https://docs.expo.dev/build/building-on-ci/
-- https://docs.expo.dev/accounts/programmatic-access/
-- https://docs.expo.dev/build/internal-distribution/
+Reference: https://docs.expo.dev/guides/local-app-production/
