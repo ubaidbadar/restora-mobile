@@ -1,4 +1,4 @@
-name: Build Android APK and iOS IPA
+name: Build Android APK (GitHub runner)
 
 on:
   push:
@@ -9,24 +9,21 @@ permissions:
   contents: read
 
 concurrency:
-  group: mobile-build-${{ github.ref }}
-  cancel-in-progress: false
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build ${{ matrix.platform }}
+  android:
+    name: Build standalone Android APK
     runs-on: ubuntu-latest
-    timeout-minutes: 180
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [android, ios]
-
+    timeout-minutes: 120
     env:
       CI: "1"
+      EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL || 'https://restora.live' }}
+      EXPO_PUBLIC_WEB_URL: ${{ vars.EXPO_PUBLIC_WEB_URL || 'https://app.restora.live' }}
 
     steps:
-      - name: Check out code
+      - name: Check out source
         uses: actions/checkout@v4
 
       - name: Set up Node.js
@@ -35,27 +32,11 @@ jobs:
           node-version: "22"
           cache: yarn
 
-      - name: Check Expo setup
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: |
-          if [ -z "$EXPO_TOKEN" ]; then
-            echo "::error::Missing EXPO_TOKEN secret. See docs/github-builds.md."
-            exit 1
-          fi
-          node -e '
-            const expo = require("./app.json").expo;
-            if (!expo?.extra?.eas?.projectId || !expo?.owner) {
-              console.error("::error::Missing expo.owner or expo.extra.eas.projectId in app.json. See docs/github-builds.md.");
-              process.exit(1);
-            }
-          '
-
-      - name: Set up Expo EAS CLI
-        uses: expo/expo-github-action@v8
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
+          distribution: temurin
+          java-version: "17"
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -63,45 +44,94 @@ jobs:
       - name: Verify app
         run: yarn verify
 
-      - name: Build ${{ matrix.platform }} using Expo EAS
-        run: |
-          eas build --platform "${{ matrix.platform }}" --profile preview --non-interactive --wait --json > eas-build.json
-
-      - name: Download and validate application
+      - name: Write optional Firebase config for Android notifications
         env:
-          PLATFORM: ${{ matrix.platform }}
+          GOOGLE_SERVICES_JSON_CONTENT: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
-          case "$PLATFORM" in
-            android) EXT="apk" ;;
-            ios) EXT="ipa" ;;
-            *) echo "Unexpected platform: $PLATFORM"; exit 1 ;;
-          esac
+          if [ -n "$GOOGLE_SERVICES_JSON_CONTENT" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON_CONTENT" > google-services.json
+            echo "GOOGLE_SERVICES_JSON=./google-services.json" >> "$GITHUB_ENV"
+          fi
 
-          BUILD_URL="$(node -e '
-            const fs = require("fs");
-            const raw = JSON.parse(fs.readFileSync("eas-build.json", "utf8"));
-            const build = Array.isArray(raw) ? raw[0] : raw;
-            if (!build) throw new Error("EAS did not return a build");
-            if (build.status && String(build.status).toLowerCase() !== "finished") {
-              throw new Error("EAS build did not finish successfully: " + build.status);
-            }
-            const url = build.artifacts?.buildUrl || build.artifacts?.applicationArchiveUrl;
-            if (!url || !url.startsWith("https://")) {
-              throw new Error("EAS did not return an HTTPS application archive URL");
-            }
-            process.stdout.write(url);
-          ')"
+      - name: Generate Android project locally
+        run: npx expo prebuild --platform android --non-interactive --clean
 
+      # Reuse Play release signing when configured. Without these secrets, Expo's
+      # prebuilt Android release variant uses the Android debug keystore.
+      # Those fallback APKs are installable but cannot reliably update each
+      # other or a Play Store installation because signing identities differ.
+      - name: Set up optional release signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          count=0
+          for value in "$ANDROID_KEYSTORE_BASE64" "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD"; do
+            if [ -n "$value" ]; then count=$((count + 1)); fi
+          done
+          if [ "$count" -eq 0 ]; then
+            echo "::notice::No release keystore configured. The APK will use temporary Android debug signing."
+            exit 0
+          fi
+          if [ "$count" -ne 4 ]; then
+            echo "::error::Partial Android keystore settings. Set all four signing secrets or none."
+            exit 1
+          fi
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.keystore
+          {
+            printf '\nMYAPP_UPLOAD_STORE_FILE=upload-keystore.keystore\n'
+            printf 'MYAPP_UPLOAD_STORE_PASSWORD=%s\n' "$KEYSTORE_PASSWORD"
+            printf 'MYAPP_UPLOAD_KEY_ALIAS=%s\n' "$KEY_ALIAS"
+            printf 'MYAPP_UPLOAD_KEY_PASSWORD=%s\n' "$KEY_PASSWORD"
+          } >> android/gradle.properties
+          echo "USE_RELEASE_KEY=true" >> "$GITHUB_ENV"
+
+      - name: Configure release signing
+        if: env.USE_RELEASE_KEY == 'true'
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const filename = 'android/app/build.gradle';
+          let source = fs.readFileSync(filename, 'utf8');
+          if (!source.includes('signingConfigs {') || !source.includes('signingConfig signingConfigs.debug')) {
+            throw new Error('Could not locate the Expo-generated Android release signing configuration');
+          }
+          const signing = [
+            '        release {',
+            '            storeFile file(MYAPP_UPLOAD_STORE_FILE)',
+            '            storePassword MYAPP_UPLOAD_STORE_PASSWORD',
+            '            keyAlias MYAPP_UPLOAD_KEY_ALIAS',
+            '            keyPassword MYAPP_UPLOAD_KEY_PASSWORD',
+            '        }'
+          ].join('\n');
+          source = source.replace('signingConfigs {', 'signingConfigs {\n' + signing);
+          const original = 'signingConfig signingConfigs.debug';
+          const index = source.lastIndexOf(original);
+          source = source.slice(0, index) + 'signingConfig signingConfigs.release' + source.slice(index + original.length);
+          fs.writeFileSync(filename, source);
+          NODE
+
+      - name: Build standalone Android release APK
+        run: |
+          # No inline modules are configured in Restora; force a valid empty JSON
+          # list to avoid the SDK 58 autolinking JSON parse failure seen in Gradle.
+          cd android
+          ./gradlew :app:assembleRelease --no-daemon --stacktrace '-Pexpo.inlineModules.watchedDirectories=[]'
+
+      - name: Validate Android APK
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          test -s "$APK"
+          unzip -tqq "$APK"
           mkdir -p artifacts
-          curl --fail --location --retry 3 --proto '=https' --tlsv1.2 \
-            --output "artifacts/Restora-$PLATFORM.$EXT" "$BUILD_URL"
-          test -s "artifacts/Restora-$PLATFORM.$EXT"
-          unzip -tqq "artifacts/Restora-$PLATFORM.$EXT"
+          cp "$APK" artifacts/Restora-android.apk
 
-      - name: Upload app to GitHub Actions artifacts
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Restora-${{ matrix.platform }}-${{ github.run_number }}
-          path: artifacts/*
+          name: Restora-android-${{ github.run_number }}
+          path: artifacts/Restora-android.apk
           if-no-files-found: error
           retention-days: 30
