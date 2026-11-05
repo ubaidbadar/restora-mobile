@@ -1,0 +1,105 @@
+name: Build Android APK and iOS IPA
+
+on:
+  push:
+    branches: [main, dev, stage]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [android, ios]
+
+    env:
+      CI: "1"
+      EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: yarn
+
+      - name: Check Expo setup
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::Missing EXPO_TOKEN secret. See docs/github-builds.md."
+            exit 1
+          fi
+          if [ -z "$EAS_PROJECT_ID" ]; then
+            echo "::error::Missing EAS_PROJECT_ID variable. See docs/github-builds.md."
+            exit 1
+          fi
+
+      - name: Set up Expo EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Verify app
+        run: yarn verify
+
+      - name: Build ${{ matrix.platform }} using Expo EAS
+        run: |
+          eas build --platform "${{ matrix.platform }}" --profile preview --non-interactive --wait --json > eas-build.json
+
+      - name: Download and validate application
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          case "$PLATFORM" in
+            android) EXT="apk" ;;
+            ios) EXT="ipa" ;;
+            *) echo "Unexpected platform: $PLATFORM"; exit 1 ;;
+          esac
+
+          BUILD_URL="$(node -e '
+            const fs = require("fs");
+            const raw = JSON.parse(fs.readFileSync("eas-build.json", "utf8"));
+            const build = Array.isArray(raw) ? raw[0] : raw;
+            if (!build) throw new Error("EAS did not return a build");
+            if (build.status && String(build.status).toLowerCase() !== "finished") {
+              throw new Error("EAS build did not finish successfully: " + build.status);
+            }
+            const url = build.artifacts?.buildUrl || build.artifacts?.applicationArchiveUrl;
+            if (!url || !url.startsWith("https://")) {
+              throw new Error("EAS did not return an HTTPS application archive URL");
+            }
+            process.stdout.write(url);
+          ')"
+
+          mkdir -p artifacts
+          curl --fail --location --retry 3 --proto '=https' --tlsv1.2 \
+            --output "artifacts/Restora-$PLATFORM.$EXT" "$BUILD_URL"
+          test -s "artifacts/Restora-$PLATFORM.$EXT"
+          unzip -tqq "artifacts/Restora-$PLATFORM.$EXT"
+
+      - name: Upload app to GitHub Actions artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Restora-${{ matrix.platform }}-${{ github.run_number }}
+          path: artifacts/*
+          if-no-files-found: error
+          retention-days: 30
