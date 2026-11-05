@@ -62,7 +62,9 @@
     "typecheck": "tsc --noEmit",
     "rules": "sh scripts/check_rules.sh",
     "verify": "yarn typecheck && yarn lint && yarn rules",
-    "doctor": "expo-doctor"
+    "doctor": "expo-doctor",
+    "prebuild": "npx expo prebuild --platform android --clean",
+    "android:build": "cd android && ./gradlew bundleRelease --no-daemon '-Pexpo.inlineModules.watchedDirectories=[]'"
   },
   "private": true
 }
