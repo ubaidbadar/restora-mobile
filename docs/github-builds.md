@@ -1,117 +1,112 @@
 # Automatic Android APK and iOS IPA builds
 
-The GitHub Actions workflow at [`.github/workflows/mobile-build.yml`](../.github/workflows/mobile-build.yml)
-builds two installable **preview** packages using Expo Application Services (EAS):
+The GitHub Actions workflow [mobile-build.yml](../.github/workflows/mobile-build.yml) uses
+Expo Application Services (EAS) to build two internally distributable **preview** packages:
 
-- **Android:** `Restora-android.apk` (installable on compatible Android phones).
-- **iOS:** `Restora-ios.ipa` (installable only on iPhones/iPads included in the Apple ad hoc provisioning profile).
+- Android: `Restora-android.apk` (installable on compatible Android phones).
+- iOS: `Restora-ios.ipa` (installable on iPhones/iPads covered by your Apple ad hoc provisioning profile).
 
-It starts automatically when code is pushed to `main`, `dev`, or `stage`. You can also start it from
-**GitHub → Actions → Build Android APK and iOS IPA → Run workflow** on a chosen branch.
-The platforms run independently, so the APK can still succeed if iOS signing fails.
+It runs on pushes to `main`, `dev`, and `stage` or via **Actions → Build Android APK and iOS IPA → Run workflow**.
+Android and iOS build independently. These are **not app-store submissions**.
+The separate `play-release.yml` builds an AAB with Gradle for Google Play on `stage` and `main`; it does not use EAS Build.
 
-These builds are **not app-store submissions**. The separate `play-release.yml` workflow
-remains unchanged and produces an Android App Bundle for Google Play.
+## Required versus optional configuration
 
-## One-time setup (required before CI builds will succeed)
+| Item | Where | Requirement |
+| --- | --- | --- |
+| Expo project ID | `app.json` → `expo.extra.eas.projectId` | **Required**, already committed to this repository |
+| Expo project owner | `app.json` → `expo.owner` | **Required**, already committed |
+| `EXPO_TOKEN` | GitHub Actions **secret** | **Required** for EAS APK/IPA workflow |
+| `EAS_PROJECT_ID` | GitHub Actions variable | **Not required** — don't create it |
+| Android signing credentials | Expo EAS credentials | **Required** for signed EAS Android builds; initialize once |
+| Apple Developer membership, registered devices, iOS signing | Apple Developer and Expo EAS | **Required** to create/install iPhone device IPAs |
+| `EXPO_PUBLIC_API_URL` | EAS preview build environment | Optional: defaults to `https://restora.live` in release |
+| `EXPO_PUBLIC_WEB_URL` | EAS preview build environment | Recommended for release: app's current fallback uses a local web server |
+| Google OAuth client IDs | EAS preview build environment | Optional, for native Google sign-in |
+| Firebase Android config and FCM V1, Apple APNs | Expo/EAS credentials and file environment | Optional for builds; required to use push alerts on the respective platform |
 
-### 1. Link this repository to an Expo EAS project
+Your backend's `EXPO_ACCESS_TOKEN` and `WEB_PUSH_PUBLIC_KEY`/`WEB_PUSH_PRIVATE_KEY`
+are used by **restora-backend**, not by GitHub mobile build authentication.
+They are not substitutes for `EXPO_TOKEN`.
 
-In a local checkout, install dependencies and log in to the Expo account that should own
-the app:
+## One-time setup
 
-```sh
-yarn install --frozen-lockfile
-npx eas-cli@latest login
-npx eas-cli@latest init
-```
+### 1. Confirm the committed Expo project linkage
 
-Copy the EAS project UUID from Expo (or the newly generated `extra.eas.projectId`).
-The existing `app.config.ts` supports the `EAS_PROJECT_ID` environment variable,
-so you do **not** need to commit a private token or project UUID.
+The Expo project is already linked in this repository's `app.json`, under
+`expo.extra.eas.projectId` and `expo.owner`. Do **not** run `eas init` again or
+create another Expo project unless you intentionally want to change ownership/linkage.
+The workflow checks for the committed project ID and fails with a clear error if it is missing.
+No GitHub `EAS_PROJECT_ID` repository variable is used.
 
-### 2. Configure GitHub Actions
+### 2. Add the GitHub Actions secret
 
-Go to **Repository → Settings → Secrets and variables → Actions** and set:
+In **Repository → Settings → Secrets and variables → Actions → New repository secret**, set:
 
 | Type | Name | Value |
 | --- | --- | --- |
 | Repository secret | `EXPO_TOKEN` | Expo access token from https://expo.dev/settings/access-tokens |
-| Repository variable | `EAS_PROJECT_ID` | The EAS project's UUID |
 
-Generate the token in the **same Expo account/team** that has access to the project.
-Do not place Apple passwords, Expo tokens, or signing keys in source code.
+The token must have access to the Expo account that owns the `app.json` project.
+Never commit tokens, Apple private keys, or signing keys to Git.
 
-### 3. Initialize Android and Apple signing credentials interactively
+### 3. Initialize signing interactively before CI builds
 
-On your local computer, perform each initial build once, signed into Expo:
+From a local checkout, sign in with the Expo account and run:
 
 ```sh
+npx eas-cli@latest login
 npx eas-cli@latest build --platform android --profile preview
 ```
 
-Allow EAS to create an Android keystore, or import the **existing Google Play signing
-key** if you need preview APKs to upgrade an already installed Play Store app.
-An APK signed by a different key cannot replace the existing installation.
+Allow EAS to create credentials, or reuse your existing Android app signing key if
+preview APKs need to install over an existing Play Store version. An APK signed by
+a different key cannot upgrade the installed app.
 
-For **iPhone installation**, you need a paid Apple Developer Program membership.
-First register your iPhone or iPad, then create the initial iOS build interactively:
+For an installable **iPhone device IPA**, you need a paid Apple Developer membership.
+Register intended devices and complete the initial EAS signing prompts:
 
 ```sh
 npx eas-cli@latest device:create
 npx eas-cli@latest build --platform ios --profile preview
 ```
 
-Follow Expo's prompts to connect the Apple Developer team and create/upload the
-distribution certificate and ad hoc provisioning profile. The iOS bundle identifier
-is `com.restoralive.app`. **New iPhones must be registered and included in an
-updated provisioning profile before their IPA can be installed.** Once valid
-credentials are stored with EAS, CI reuses them non-interactively. Re-run an
-interactive iOS build or refresh the provisioning profile after adding devices.
+New devices must be covered by the updated Apple ad hoc provisioning profile.
+An iOS IPA from this preview workflow is not a TestFlight or App Store release.
 
-The iOS IPA is **not** a TestFlight or App Store release. For public iPhone
-distribution, use an App Store/TestFlight profile and submission workflow instead.
+After signed builds have been initialized interactively, CI can reuse the stored
+EAS credentials in non-interactive builds.
 
-### 4. Configure optional build-time app settings in Expo
+### 4. Optional build-time app settings
 
-The app uses `https://restora.live` as its API in release builds unless
-`EXPO_PUBLIC_API_URL` is set. To override it for cloud builds, use the
-**preview environment in EAS** (not only a GitHub Actions variable). The
-`EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` and `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`
-values used for Google sign-in also belong in the EAS build environment.
+For the cloud build, set any needed `EXPO_PUBLIC_*` variables in Expo's **preview**
+environment. A GitHub Actions repository variable alone will not be sent to the
+EAS cloud build. See `../.env.example` for defaults and distinctions.
 
-If enabling push notifications, configure `EAS_PROJECT_ID` and an Android
-`GOOGLE_SERVICES_JSON` file environment variable in EAS as described by the
-app's `.env.example` and `app.config.ts`.
+For native push notifications, the committed Expo project ID is necessary but
+not sufficient: Android requires Firebase configuration and FCM credentials;
+iOS requires APNs credentials. The backend's browser VAPID keys are independent.
 
-### 5. Download the packages from GitHub
+### 5. Download packages
 
-After merging this workflow into `main`, `dev`, and `stage`, push a commit to any of those branches or manually
-trigger **Actions → Build Android APK and iOS IPA**. When the jobs finish:
-
-1. Open the specific workflow run in GitHub Actions.
-2. Scroll to the **Artifacts** area.
-3. Download `Restora-android-<run number>` and/or `Restora-ios-<run number>`.
-4. Unzip the downloaded GitHub artifact to get the `.apk` or `.ipa` file.
-
-Artifacts are retained for **30 days**. A build requires EAS access and signing
-credentials; merging the YAML alone does not create those credentials. EAS build
-quotas and Apple provisioning limitations apply.
+When an Actions run succeeds, scroll to **Artifacts** and download
+`Restora-android-<run number>` and/or `Restora-ios-<run number>`.
+Unzip the downloaded GitHub artifact to retrieve the `.apk`/`.ipa`.
+Artifacts are kept for **30 days**; Expo build quotas apply.
 
 ## Troubleshooting
 
-- **Missing EXPO_TOKEN / EAS_PROJECT_ID:** Configure the GitHub secret and variable.
-- **Non-interactive credentials error:** Run the initial platform build locally,
-  interactively, and finish the EAS credentials setup.
-- **Device cannot install iOS IPA:** Register it with `eas device:create`,
-  refresh the ad hoc provisioning profile and rebuild.
-- **Android or iOS compilation failure:** Open the EAS build log linked by the
-  GitHub Actions step. Source or dependency issues are not fixed by signing setup.
-- **APK fails to update existing app:** Use the same Android signing key and package
-  identifier as the installed app, or uninstall the installed app first.
+- **Missing EXPO_TOKEN:** Create the GitHub Actions repository secret.
+- **Missing Expo project ID:** Commit `expo.extra.eas.projectId` and `expo.owner` in `app.json` for the branch.
+- **Non-interactive signing error:** Finish an interactive EAS build for that platform.
+- **iOS install rejected:** Register the device and refresh the ad hoc provisioning profile.
+- **APK won't update installed app:** Use matching Android signing keys/package ID, or uninstall the old app.
+- **Native compilation failure:** Open the EAS build logs linked from GitHub Actions.
+- **Stage branch note:** Its existing Android/iOS app IDs differ from `main`/`dev`.
+  The project linkage is shared, but signing credentials and package identity can differ;
+  do not change the identifiers accidentally.
 
-Official docs:
+Reference:
 - https://docs.expo.dev/build/building-on-ci/
-- https://docs.expo.dev/build/eas-json/
-- https://docs.expo.dev/build/internal-distribution/
 - https://docs.expo.dev/accounts/programmatic-access/
+- https://docs.expo.dev/build/internal-distribution/
