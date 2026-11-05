@@ -6,7 +6,7 @@ builds two installable **preview** packages using Expo Application Services (EAS
 - **Android:** `Restora-android.apk` (installable on compatible Android phones).
 - **iOS:** `Restora-ios.ipa` (installable only on iPhones/iPads included in the Apple ad hoc provisioning profile).
 
-It starts automatically when code is pushed to `main`. You can also start it from
+It starts automatically when code is pushed to `main`, `dev`, or `stage`. You can also start it from
 **GitHub → Actions → Build Android APK and iOS IPA → Run workflow** on a chosen branch.
 The platforms run independently, so the APK can still succeed if iOS signing fails.
 
@@ -86,7 +86,7 @@ app's `.env.example` and `app.config.ts`.
 
 ### 5. Download the packages from GitHub
 
-After merging this workflow into `main`, push a commit to `main` or manually
+After merging this workflow into `main`, `dev`, and `stage`, push a commit to any of those branches or manually
 trigger **Actions → Build Android APK and iOS IPA**. When the jobs finish:
 
 1. Open the specific workflow run in GitHub Actions.
