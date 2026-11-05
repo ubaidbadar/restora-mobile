@@ -84,8 +84,6 @@ jobs:
 
       - name: Prebuild Android project
         if: steps.aab-cache.outputs.cache-hit != 'true'
-        env:
-          EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
         run: npx expo prebuild --platform android --non-interactive --clean
 
       - name: Write upload keystore
