@@ -8,8 +8,10 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        // Side-by-side installation for testing. Do NOT replace the Expo package yet.
-        applicationId = "live.restora.nativeapp"
+        // Existing Google Play / production Android application ID.
+        // WARNING: installing this unfinished native preview can replace the React Native app.
+        // Keep the Kotlin source namespace distinct until an intentional source migration.
+        applicationId = "com.restoralive.app"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "415170912813",
+    "project_id": "restora-live",
+    "storage_bucket": "restora-live.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:415170912813:android:1029c29f277b9ad0f40ea4",
+        "android_client_info": {
+          "package_name": "com.restoralive.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "415170912813-d63bs14go1ivi88gdj0vfkngl9jr50ok.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.restoralive.app",
+            "certificate_hash": "7660f604f6e6d373c21bf39a492f024ea246b775"
+          }
+        },
+        {
+          "client_id": "415170912813-7ikcdht16n2vgumkkpvaslda5c8kbbop.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7Tky3huKiSTTquw1PUC54z5Unz8DXdbA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "415170912813-7ikcdht16n2vgumkkpvaslda5c8kbbop.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "415170912813-7f8bha6osuc2kthgnralf38qkjid76kd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.restora.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

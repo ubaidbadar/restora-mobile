@@ -1,61 +1,92 @@
-# Restora: native Google sign-in and Firebase app registration
+# Restora Android ID, Google sign-in, and Firebase
 
-These instructions are for the **Kotlin preview** only. The React Native app keeps its production package and signing credentials.
+## Canonical identifiers
 
-## Known configuration
-
-| Item | Value |
+| Setting | Value |
 |---|---|
-| API origin | `https://restora.live` |
-| Backend API prefix | `https://restora.live/api/v1` |
-| Staff web frontend | `https://app.restora.live` |
-| Guest QR origin | `https://restora.live` |
-| Web OAuth client ID | `415170912813-7ikcdht16n2vgumkkpvaslda5c8kbbop.apps.googleusercontent.com` |
-| Firebase project ID | `restora-live` |
-| Existing Expo app package | `com.restoralive.app` |
-| New Kotlin preview package | `live.restora.nativeapp` |
+| Google Play Android application ID | `com.restoralive.app` |
+| Native APK application ID | `com.restoralive.app` |
+| Kotlin source / generated BuildConfig namespace | `live.restora.nativeapp` |
+| Web Google OAuth client ID | `415170912813-7ikcdht16n2vgumkkpvaslda5c8kbbop.apps.googleusercontent.com` |
+| Firebase project | `restora-live` |
+| Public guest links | `https://restora.live/t/<table-code>` |
+| Backend API | `https://restora.live/api/v1` |
+| Web dashboard | `https://app.restora.live` |
 
-The supplied `google-services.json` identifies an Android OAuth client for
-`com.restoralive.app`. That configuration **does not match** the intentionally
-separate Kotlin preview application ID. The file was **not committed** to the
-repository. The preview `.gitignore` also excludes `app/google-services.json`.
+The uploaded `google-services.json` belongs to **`com.restoralive.app`** and is
+now included under `app/google-services.json`. It contains public Android
+app/Firebase client configuration; do not add service-account JSON or private
+OAuth client secrets to the repository. Keep the Firebase API key restricted
+appropriately in Google Cloud.
 
-## Enable Google on the preview without breaking the production app
+## Android signing requirements
 
-1. In Google Cloud Console, open the Google Cloud project associated with Firebase project `restora-live`. Keep the existing **Web application OAuth client** unchanged.
-2. In Android Studio, open `android-native/`, then run `gradle :app:signingReport`. Copy the **SHA-1** of the debug signing key from the build machine. Google OAuth requires both the exact Android package name and the signing certificate fingerprint.
-3. In **Google Cloud Console > APIs & Services > Credentials**, add a separate **Android OAuth client** for package `live.restora.nativeapp` and that SHA-1. Do **not** delete or modify the production Android client for `com.restoralive.app`.
-4. Confirm that the **web OAuth client ID** in `BuildConfig.GOOGLE_WEB_CLIENT_ID` is the ID listed above. It is used as the Credential Manager server client ID, so ID tokens have the correct intended audience.
-5. Check the actual backend environment has `GOOGLE_CLIENT_ID` set to that same web client ID and that `GET /api/v1/public/sign-in-providers` includes `google` in `app`. An endpoint check could not be performed from this environment. Do not paste backend secrets into client code.
-6. Test the new **Continue with Google** button on a real Android device or emulator with Google Play services. Test successful sign-in, cancellation, a different account, offline mode, sign-out, and a rotated activity. The backend must issue a Better Auth session cookie and `/me` must succeed.
-7. For a Play Store build, register the **Google Play App Signing** certificate SHA-1 too. A debug fingerprint does not cover production signing.
+The existing Firebase Android OAuth client is associated with:
+- Android package: `com.restoralive.app`
+- SHA-1 signing certificate fingerprint (from the supplied client JSON):
+  `76:60:F6:04:F6:E6:D3:73:C2:1B:F3:9A:49:2F:02:4E:A2:46:B7:75`
 
-Google sign-in uses stable `androidx.credentials:credentials:1.6.0`,
-`credentials-play-services-auth:1.6.0`, and
-`com.google.android.libraries.identity.googleid:googleid:1.2.1`.
-The app calls `/api/v1/auth/sign-in/social` with a Google ID token and a
-fresh per-request nonce. Server-side Better Auth validates the token.
+This fingerprint may **not** be your Android Studio debug key, Play App
+Signing key, or current upload key. On the Android development machine, run:
 
-### About `google-services.json`
+```bash
+cd android-native
+gradle :app:signingReport
+```
 
-The **Credential Manager Google sign-in flow does not need this Firebase JSON
-file or the Google Services Gradle plugin**. Do not add the Firebase Gradle
-plugin solely for Google authentication; it slows and may break builds due to
-the wrong package. Later, when FCM push notifications or other Firebase SDKs
-are added, register the Kotlin preview as an Android app in Firebase, download
-the **matching** `google-services.json`, and wire the Gradle plugin at that point.
+Compare its **SHA-1** to the Android OAuth clients configured in the
+Google Cloud project for `com.restoralive.app`. Add a debug-specific Android
+OAuth client if necessary, without modifying the existing production client.
+For a Play Store build, inspect the **App signing key certificate** and
+**Upload key certificate** in Play Console > App integrity. Do not assume a
+debug build is eligible for Play distribution.
 
-### Final migration
+### Installing on a test phone
 
-The native app can use `com.restoralive.app` only when all native features
-have parity with the current Expo app, the production signing/Google/Firebase
-configuration is verified, and a deliberate rollout plan is approved. Do not
-change the package ID now: that would risk replacing the working app on testers'
-phones and potentially conflict with the Play Store release.
+**Caution:** because the native preview and the released React Native app
+now use the same Android application ID, they cannot coexist as two installed
+apps. A different signing certificate will block in-place installation; a
+compatible signature can replace the current installed APK and its code.
+Use a spare device/emulator or backup current data before testing.
+
+### Google sign-in architecture
+
+The native app uses stable Android Credential Manager and Google ID Token
+libraries to request an ID token scoped to the web client ID. The token and
+a freshly generated nonce are submitted to the existing Better Auth endpoint
+`POST /api/v1/auth/sign-in/social`. The backend verifies Google authentication
+and issues the session cookie. **Do not add a deprecated GoogleSignIn SDK**.
+
+Credentials dependencies:
+- `androidx.credentials:credentials:1.6.0`
+- `androidx.credentials:credentials-play-services-auth:1.6.0`
+- `com.google.android.libraries.identity.googleid:googleid:1.2.1`
+
+Verify production backend `GOOGLE_CLIENT_ID` uses the same web client ID and
+`GET /api/v1/public/sign-in-providers` includes Google under `app`. Test
+login, cancel, switching Google accounts, offline errors, and sign-out on a
+Google Play-enabled device.
+
+### Why the Google Services plugin is not yet added
+
+Credential Manager does not require the `com.google.gms.google-services`
+Gradle plugin or a Firebase SDK. The uploaded `google-services.json` is kept
+in the native app for future Firebase use, but no Firebase plugin is enabled
+until FCM or another Firebase SDK is actually implemented. Avoid unnecessary
+plugins and slower builds.
+
+## Play Store release gate
+
+A replacement AAB must have this same application ID, use the Play upload
+signing key, and increment `versionCode` above the currently published
+version. These are **necessary but not sufficient**. The native preview lacks
+feature parity and has not passed device and CI testing. Do **not** publish
+it yet. The `versionCode = 1` in this preview is not a claim that it can
+replace the current Play release.
 
 Official references:
+- https://developer.android.com/build/configure-app-module#set-application-id
 - https://developer.android.com/identity/sign-in/credential-manager-siwg-implementation
 - https://developer.android.com/jetpack/androidx/releases/credentials
-- https://developers.google.com/identity/android-credential-manager/releases
+- https://support.google.com/googleplay/android-developer/answer/9842756
 - https://firebase.google.com/docs/android/google-services-plugin-and-file
-- https://better-auth.com/docs/authentication/google

@@ -6,4 +6,4 @@
 *.iml
 *.apk
 *.aab
-/app/google-services.json
+# Firebase client configuration for the production Android application ID is intentionally versioned.

@@ -1,6 +1,6 @@
 # Restora Native for Android (Kotlin + Jetpack Compose)
 
-This is the **separate, in-progress native Android implementation** of the existing Expo/React Native app. The shipping app remains at the repository root. The Android package ID is deliberately different (`live.restora.nativeapp`) so testers cannot accidentally replace production.
+This is the **separate, in-progress native Android implementation** of the existing Expo/React Native app. The shipping app remains at the repository root. The Android **application ID is `com.restoralive.app`**, matching the existing Google Play listing and the React Native app. Kotlin source code intentionally remains under the internal namespace `live.restora.nativeapp` (which is valid and keeps the initial migration smaller). **Do not install this unfinished native APK on a device with the production app without taking a backup first**: the identical application ID means it can replace the existing installation when signatures are compatible, or installation can be rejected if signatures differ.
 
 ## Current scope
 
@@ -20,9 +20,9 @@ GitHub Actions is configured to compile, run unit tests and lint. A successful A
 
 ## Google sign-in / Firebase setup
 
-The sign-in button uses **stable Credential Manager**, not the deprecated GoogleSignIn SDK, and sends the Google ID token to the existing Better Auth backend. **It does not require Firebase or a google-services Gradle plugin**.
+The sign-in button uses **stable Credential Manager** and sends the Google ID token to the existing Better Auth backend. **Firebase and the Google Services Gradle plugin are not needed for this login flow.** The uploaded `google-services.json` now matches the app ID `com.restoralive.app` and is included for future Firebase integration, but is not processed by Gradle yet. The Android OAuth client must still have a SHA-1 fingerprint matching the installed build's signing certificate. See [GOOGLE_SIGN_IN.md](./GOOGLE_SIGN_IN.md).
 
-Important: the uploaded `google-services.json` is registered for `com.restoralive.app` (the existing Expo app). The Kotlin preview is intentionally `live.restora.nativeapp`; blindly copying that file into this app would cause a package mismatch and potentially break Firebase builds. Instead, register the preview package + the signing SHA-1 as a separate **Android OAuth client** in the same Google Cloud project. See [GOOGLE_SIGN_IN.md](./GOOGLE_SIGN_IN.md) for exact steps. Do not change the Kotlin preview applicationId to the production package yet.
+**Play Store release caution:** matching the package name alone does not make the Kotlin preview eligible as a Play update. It must also use the correct upload signing key, a versionCode larger than the current Play release, and full application parity before publication. This preview still uses `versionCode = 1` intentionally; do not publish it.
 
 ## Faster local builds
 

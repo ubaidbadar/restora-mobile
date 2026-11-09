@@ -4,6 +4,7 @@
 This complements (but does not replace) Gradle compilation, Android Lint, and device QA.
 """
 from pathlib import Path
+import json
 import re
 import sys
 
@@ -38,12 +39,29 @@ required = {
     "Gradle wrapper 9.5": ('gradle-9.5.0-bin.zip', wrapper),
     "Compile SDK 37": ("compileSdk = 37", gradle),
     "Stable Compose BOM": ("androidx.compose:compose-bom:2026.09.00", gradle),
+    "Correct Play Store application ID": ('applicationId = "com.restoralive.app"', gradle),
     "Kotlin warnings are errors": ("allWarningsAsErrors.set(true)", gradle),
     "Android lint warnings are errors": ("warningsAsErrors = true", gradle),
 }
 for label, (needle, text) in required.items():
     if needle not in text:
         errors.append(f"Missing expected configuration: {label}")
+
+# The registered Firebase client must belong to the same Android application ID.
+firebase_config = ROOT / "app" / "google-services.json"
+if not firebase_config.is_file():
+    errors.append("Missing supplied app/google-services.json")
+else:
+    try:
+        payload = json.loads(firebase_config.read_text(encoding="utf-8"))
+        packages = {
+            entry["client_info"]["android_client_info"]["package_name"]
+            for entry in payload.get("client", [])
+        }
+        if "com.restoralive.app" not in packages:
+            errors.append("Firebase Android package does not match the application ID")
+    except (ValueError, KeyError, TypeError) as exc:
+        errors.append(f"Invalid Firebase client configuration: {exc}")
 
 if errors:
     print("Android source audit failed:")

@@ -41,7 +41,7 @@ The native project uses `TextFieldState`, `OutlinedSecureTextField`, and `TextFi
 - Public table QR links: `https://restora.live/t/<restaurant>/<table-key>`, or `/t/<legacy-code>`. The code is obtained from the backend's `qrCode` field and validated before use.
 - Android Google authentication uses Credential Manager to get a Google ID token with an independent, secure random nonce and sends `{provider:"google",idToken:{token,nonce}}` to Better Auth. No token is logged.
 - The web client ID is public config, **not** a Google client secret; the actual backend must have `GOOGLE_CLIENT_ID` configured to accept that ID.
-- The supplied `google-services.json` belongs to `com.restoralive.app`, whereas the preview uses `live.restora.nativeapp`. Do not bundle the mismatch or enable the Firebase plugin. See `GOOGLE_SIGN_IN.md`.
+- The application ID is now `com.restoralive.app`, matching Google Play and the supplied `google-services.json`; the Kotlin source namespace remains `live.restora.nativeapp`. The Firebase JSON is included but the Google Services plugin is not needed until Firebase SDK features are implemented. See `GOOGLE_SIGN_IN.md`.
 
 ## Validation status
 

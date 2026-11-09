@@ -16,14 +16,14 @@ Source of truth: repository root `MOBILE_RULES.md`, `PLAN.md`, `STATUS.md` and `
 | Onboarding and account recovery | Not started | Match existing account flow |
 | New/edit orders | Not started | Add-ons, deals, tax, offline and idempotency |
 | Menu, reservations, staff, printers | Not started | Permission-gated forms and actions |
-| Native Google sign-in | Credential Manager flow implemented; device unverified | Register preview package + signing SHA-1, verify backend provider and cookie against server |
+| Native Google sign-in | Credential Manager flow implemented; device unverified | App ID com.restoralive.app, validate Android signing SHA-1, verify backend provider and session on device |
 | Table QR guest links | Public web link open/share implemented | Every URL uses restora.live/t/code, never staff app host; QR image/scanner still missing |
 | FCM push, SSE, audio, QR scanner | Not started | Lifecycle/background behavior |
 | Testing and accessibility | Not completed | Build, lint, unit, UI, TalkBack, slow-network and process death |
 
 ## Non-negotiable behavior
 
-1. Do not rewrite or delete the React Native implementation while native parity is incomplete.
+1. Do not rewrite or delete the React Native implementation while native parity is incomplete. The native app now has the production application ID, so installing an APK can replace the existing phone installation (or fail on a signature mismatch); do not put it on production devices.
 2. Do not present unverified behavior as crash-free or bug-free.
 3. Respect backend permissions, branch context, and exact original API payloads.
 4. New orders must have stable client IDs and persist to an offline outbox before any UI claims offline support.
