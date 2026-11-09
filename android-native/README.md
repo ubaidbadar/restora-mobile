@@ -10,7 +10,7 @@ Foundation: Kotlin/Compose, single-activity app, light/dark Restora color tokens
 
 ## Build
 
-Requirements: JDK 21 for Gradle (Java bytecode targets 17), Android SDK Platform 37, Build Tools 36.0.0, Gradle 9.5.0, AGP 9.3.1, Kotlin/Compose compiler 2.4.20. Open `android-native/` in Android Studio, or from that directory run:
+Requirements: JDK 21 for Gradle (Java bytecode targets 17), Android SDK Platform 37, Build Tools 36.0.0, Gradle 9.5.0, AGP 9.3.3, Kotlin/Compose compiler 2.4.20. Open `android-native/` in Android Studio, or from that directory run:
 
 ```bash
 gradle :app:assembleDebug :app:testDebugUnitTest :app:lintDebug

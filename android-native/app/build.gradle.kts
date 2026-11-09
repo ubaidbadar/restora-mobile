@@ -33,7 +33,7 @@ android {
 
 kotlin {
     compilerOptions {
-        allWarningsAsErrors = true
+        allWarningsAsErrors.set(true)
     }
 }
 

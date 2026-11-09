@@ -25,6 +25,9 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.5.0'
+      - name: Reject known deprecated API usage
+        working-directory: android-native
+        run: python3 scripts/check_api_surface.py
       - name: Build, unit tests, and lint
         working-directory: android-native
         run: gradle :app:assembleDebug :app:testDebugUnitTest :app:lintDebug --warning-mode=fail --stacktrace
