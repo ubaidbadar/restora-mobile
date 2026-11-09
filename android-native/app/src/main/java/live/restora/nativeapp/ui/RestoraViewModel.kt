@@ -86,6 +86,20 @@ class RestoraViewModel(private val repository: RestoraRepository) : ViewModel() 
         }
     }
 
+    fun signInWithGoogle(idToken: String, nonce: String) {
+        if (mutableState.value.busy || idToken.isBlank() || nonce.isBlank()) return
+        mutableState.update { it.copy(busy = true, session = SessionState.SignedOut()) }
+        viewModelScope.launch {
+            try {
+                openSession(repository.authenticateWithGoogle(idToken, nonce))
+            } catch (error: Exception) {
+                mutableState.update { it.copy(session = SessionState.SignedOut(error.userMessage())) }
+            } finally {
+                mutableState.update { it.copy(busy = false) }
+            }
+        }
+    }
+
     fun signIn(email: String, password: String) {
         if (email.isBlank() || password.isBlank() || mutableState.value.busy) return
         mutableState.update { it.copy(busy = true, session = SessionState.SignedOut()) }

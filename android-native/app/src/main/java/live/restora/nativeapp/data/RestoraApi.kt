@@ -35,6 +35,24 @@ class RestoraApi(private val cookies: SecureCookieStore) {
         if (!hasSavedSession()) throw IOException("Sign-in did not return a session cookie.")
     }
 
+    /**
+     * Credential Manager returns a Google ID token scoped to the WEB client ID.
+     * Better Auth validates its signature/audience/nonce on the server before issuing
+     * a session cookie. Never accept a Google profile as an authenticated Restora user.
+     */
+    suspend fun signInWithGoogle(token: String, nonce: String) {
+        require(token.isNotBlank() && nonce.isNotBlank())
+        request(
+            path = "/auth/sign-in/social",
+            method = "POST",
+            json = JSONObject()
+                .put("provider", "google")
+                .put("idToken", JSONObject().put("token", token).put("nonce", nonce)),
+            useSession = false
+        )
+        if (!hasSavedSession()) throw IOException("Google sign-in did not return a session cookie.")
+    }
+
     suspend fun signOut() {
         try {
             request("/auth/sign-out", method = "POST", json = JSONObject())
@@ -67,6 +85,14 @@ class RestoraApi(private val cookies: SecureCookieStore) {
             connection.readTimeout = 20_000
             connection.instanceFollowRedirects = false
             connection.setRequestProperty("Accept", "application/json")
+            if (path.startsWith("/auth/")) {
+                // Match the Better Auth Expo client contract used by Restora's backend.
+                connection.setRequestProperty("x-skip-oauth-proxy", "true")
+                // ID-token sign-in is verified cryptographically and does NOT send expo-origin.
+                if (path != "/auth/sign-in/social") {
+                    connection.setRequestProperty("expo-origin", "restora://")
+                }
+            }
             if (useSession) cookies.read()?.let {
                 connection.setRequestProperty("Cookie", it)
             }
@@ -96,7 +122,8 @@ class RestoraApi(private val cookies: SecureCookieStore) {
                 ?.value.orEmpty()
                 .map { it.substringBefore(';').trim() }
                 .filter { raw ->
-                    raw.substringBefore('=').removePrefix("__Secure-").startsWith("better-auth.")
+                    raw.substringBefore('=').removePrefix("__Secure-")
+                        .removePrefix("__Host-").startsWith("better-auth.")
                 }
             if (returnedCookies.isNotEmpty()) cookies.write(returnedCookies.joinToString("; "))
 

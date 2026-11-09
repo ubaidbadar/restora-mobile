@@ -10,6 +10,10 @@ class RestoraRepository(private val api: RestoraApi) {
         api.signIn(email, password)
         return api.me()
     }
+    suspend fun authenticateWithGoogle(token: String, nonce: String): Account {
+        api.signInWithGoogle(token, nonce)
+        return api.me()
+    }
     suspend fun restore(): Account = api.me()
     suspend fun signOut() = api.signOut()
     suspend fun orders(): List<Order> = api.orders()

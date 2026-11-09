@@ -52,6 +52,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import kotlinx.coroutines.launch
+import live.restora.nativeapp.auth.GoogleSignInToken
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -103,7 +109,7 @@ private fun sharePublicLink(context: Context, url: String) {
 }
 
 @Composable
-fun RestoraApp(model: RestoraViewModel) {
+fun RestoraApp(model: RestoraViewModel, googleSignIn: suspend () -> GoogleSignInToken) {
     val state by model.state.collectAsStateWithLifecycle()
     when (val session = state.session) {
         SessionState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -112,7 +118,9 @@ fun RestoraApp(model: RestoraViewModel) {
         is SessionState.SignedOut -> SignInScreen(
             message = session.message,
             busy = state.busy,
-            onSignIn = model::signIn
+            onSignIn = model::signIn,
+            googleSignIn = googleSignIn,
+            onGoogleToken = { token -> model.signInWithGoogle(token.idToken, token.nonce) }
         )
         is SessionState.ConnectionError -> Column(
             Modifier.fillMaxSize().padding(24.dp),
@@ -141,8 +149,13 @@ fun RestoraApp(model: RestoraViewModel) {
 private fun SignInScreen(
     message: String?,
     busy: Boolean,
-    onSignIn: (String, String) -> Unit
+    onSignIn: (String, String) -> Unit,
+    googleSignIn: suspend () -> GoogleSignInToken,
+    onGoogleToken: (GoogleSignInToken) -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+    var googlePickerBusy by remember { mutableStateOf(false) }
+    var googlePickerError by remember { mutableStateOf<String?>(null) }
     val email = rememberTextFieldState()
     // Do not put password contents into saved-instance state or process-death bundles.
     val password = remember { TextFieldState() }
@@ -155,6 +168,37 @@ private fun SignInScreen(
             color = MaterialTheme.colorScheme.primary)
         Text("Welcome back", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(24.dp))
+        OutlinedButton(
+            onClick = {
+                googlePickerError = null
+                googlePickerBusy = true
+                scope.launch {
+                    try {
+                        val token = googleSignIn()
+                        onGoogleToken(token)
+                    } catch (_: GetCredentialCancellationException) {
+                        // Account selection dismissed; keep the email form usable.
+                    } catch (_: GetCredentialException) {
+                        googlePickerError = "Google sign-in isn't available. Check Play services and this app's Android OAuth registration."
+                    } catch (_: GoogleIdTokenParsingException) {
+                        googlePickerError = "Google returned an invalid sign-in response. Update Google Play services."
+                    } catch (_: Exception) {
+                        googlePickerError = "Couldn't sign in with Google. Try again."
+                    } finally {
+                        googlePickerBusy = false
+                    }
+                }
+            },
+            enabled = !busy && !googlePickerBusy,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+        ) { Text(if (googlePickerBusy || busy) "Signing in…" else "Continue with Google") }
+        if (googlePickerError != null) {
+            Spacer(Modifier.height(8.dp))
+            Text(googlePickerError.orEmpty(), color = MaterialTheme.colorScheme.error)
+        }
+        Spacer(Modifier.height(12.dp))
+        Text("or sign in with email", style = MaterialTheme.typography.bodySmall)
+        Spacer(Modifier.height(12.dp))
         OutlinedTextField(
             state = email,
             label = { Text("Email") },
@@ -176,7 +220,7 @@ private fun SignInScreen(
         Spacer(Modifier.height(20.dp))
         Button(
             onClick = { onSignIn(email.text.toString(), password.text.toString()) },
-            enabled = email.text.isNotBlank() && password.text.isNotBlank() && !busy,
+            enabled = email.text.isNotBlank() && password.text.isNotBlank() && !busy && !googlePickerBusy,
             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
         ) { Text(if (busy) "Signing in…" else "Sign in") }
         Text(

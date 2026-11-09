@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
+import live.restora.nativeapp.auth.GoogleIdentity
 import live.restora.nativeapp.ui.RestoraApp
 import live.restora.nativeapp.ui.RestoraTheme
 import live.restora.nativeapp.ui.RestoraViewModel
@@ -16,7 +17,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             val factory = remember { RestoraViewModel.Factory(appContext) }
             val model: RestoraViewModel = viewModel(factory = factory)
-            RestoraTheme { RestoraApp(model) }
+            RestoraTheme {
+                RestoraApp(model, googleSignIn = {
+                    GoogleIdentity(this@MainActivity).signIn()
+                })
+            }
         }
     }
 }
