@@ -38,7 +38,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -173,7 +172,7 @@ private fun WorkspaceApp(
         return
     }
     val tabs = remember(workplace.permissions) {
-        Tab.entries.filter { it.permission == null || workplace.can(it.permission) }
+        Tab.entries.filter { tab -> tab.permission?.let(workplace::can) ?: true }
     }
     val selected = state.selectedTab.takeIf { it in tabs } ?: tabs.first()
 
@@ -457,7 +456,7 @@ private fun CustomersScreen(slot: Loadable<List<Customer>>, onRefresh: () -> Uni
             val query = search.trim()
             all.filter {
                 query.isEmpty() || it.name.contains(query, ignoreCase = true) ||
-                    it.phone.contains(query.filter(Char::isDigit))
+                    (query.any(Char::isDigit) && it.phone.contains(query.filter(Char::isDigit)))
             }
         }
         Column(Modifier.fillMaxSize()) {

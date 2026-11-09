@@ -88,7 +88,7 @@ class RestoraViewModel(private val repository: RestoraRepository) : ViewModel() 
 
     fun signIn(email: String, password: String) {
         if (email.isBlank() || password.isBlank() || mutableState.value.busy) return
-        mutableState.update { it.copy(busy = true, session = SessionState.Loading) }
+        mutableState.update { it.copy(busy = true, session = SessionState.SignedOut()) }
         viewModelScope.launch {
             try {
                 openSession(repository.authenticate(email.trim(), password))
@@ -104,7 +104,7 @@ class RestoraViewModel(private val repository: RestoraRepository) : ViewModel() 
         loadedTabs.clear()
         loadingTabs.clear()
         val first = Tab.entries.firstOrNull { tab ->
-            tab.permission != null && account.workplace?.can(tab.permission) == true
+            tab.permission?.let { account.workplace?.can(it) } == true
         } ?: Tab.MORE
         mutableState.value = AppState(
             session = SessionState.Active(account),
@@ -115,7 +115,8 @@ class RestoraViewModel(private val repository: RestoraRepository) : ViewModel() 
 
     fun selectTab(tab: Tab) {
         val account = (mutableState.value.session as? SessionState.Active)?.account ?: return
-        if (tab.permission != null && account.workplace?.can(tab.permission) != true) return
+        val permission = tab.permission
+        if (permission != null && account.workplace?.can(permission) != true) return
         mutableState.update { it.copy(selectedTab = tab) }
         if (loadedTabs.add(tab)) refresh(tab)
     }

@@ -44,11 +44,11 @@ class RestoraApi(private val cookies: SecureCookieStore) {
     }
 
     suspend fun me(): Account = JSONObject(request("/me")).toAccount()
-    suspend fun orders(): List<Order> = JSONArray(request("/orders")).objects(JSONObject::toOrder)
+    suspend fun orders(): List<Order> = JSONArray(request("/orders")).objects { it.toOrder() }
     suspend fun tables(): List<FloorTable> =
-        JSONArray(request("/tables/floor")).objects(JSONObject::toFloorTable)
+        JSONArray(request("/tables/floor")).objects { it.toFloorTable() }
     suspend fun customers(): List<Customer> =
-        JSONArray(request("/customers")).objects(JSONObject::toCustomer)
+        JSONArray(request("/customers")).objects { it.toCustomer() }
 
     suspend fun today(day: String): Dashboard =
         JSONObject(request("/dashboard?scope=branch&from=$day&to=$day")).toDashboard()
