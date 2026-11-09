@@ -11,8 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -22,7 +25,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.PasswordVisualTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -33,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -103,10 +109,12 @@ private fun SignInScreen(
     busy: Boolean,
     onSignIn: (String, String) -> Unit
 ) {
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
+    val email = rememberTextFieldState()
+    // Do not put password contents into saved-instance state or process-death bundles.
+    val password = remember { TextFieldState() }
     Column(
-        Modifier.fillMaxSize().padding(horizontal = 24.dp),
+        Modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.Center
     ) {
         Text("Restora", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold,
@@ -114,21 +122,17 @@ private fun SignInScreen(
         Text("Welcome back", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(24.dp))
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            state = email,
             label = { Text("Email") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true,
+            lineLimits = TextFieldLineLimits.SingleLine,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(12.dp))
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+        OutlinedSecureTextField(
+            state = password,
             label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
         if (!message.isNullOrBlank()) {
@@ -137,8 +141,8 @@ private fun SignInScreen(
         }
         Spacer(Modifier.height(20.dp))
         Button(
-            onClick = { onSignIn(email, password) },
-            enabled = email.isNotBlank() && password.isNotBlank() && !busy,
+            onClick = { onSignIn(email.text.toString(), password.text.toString()) },
+            enabled = email.text.isNotBlank() && password.text.isNotBlank() && !busy,
             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
         ) { Text(if (busy) "Signing in…" else "Sign in") }
         Text(
@@ -450,10 +454,11 @@ private fun TablesScreen(slot: Loadable<List<FloorTable>>, onRefresh: () -> Unit
 
 @Composable
 private fun CustomersScreen(slot: Loadable<List<Customer>>, onRefresh: () -> Unit) {
-    var search by rememberSaveable { mutableStateOf("") }
+    val search = rememberTextFieldState()
+    val searchText = search.text.toString()
     ContentState(slot, onRefresh) { all ->
-        val customers = remember(all, search) {
-            val query = search.trim()
+        val customers = remember(all, searchText) {
+            val query = searchText.trim()
             all.filter {
                 query.isEmpty() || it.name.contains(query, ignoreCase = true) ||
                     (query.any(Char::isDigit) && it.phone.contains(query.filter(Char::isDigit)))
@@ -461,8 +466,9 @@ private fun CustomersScreen(slot: Loadable<List<Customer>>, onRefresh: () -> Uni
         }
         Column(Modifier.fillMaxSize()) {
             OutlinedTextField(
-                value = search, onValueChange = { search = it },
-                label = { Text("Name or phone") }, singleLine = true,
+                state = search,
+                label = { Text("Name or phone") },
+                lineLimits = TextFieldLineLimits.SingleLine,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
             )
             if (customers.isEmpty()) {

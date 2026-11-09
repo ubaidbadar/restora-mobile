@@ -1,5 +1,7 @@
 # Native Android parity tracker
 
+Dependency baseline: AGP 9.3.1 / Gradle 9.5.0 / Kotlin and Compose compiler 2.4.20 / Compose BOM 2026.09.00 / compileSdk 37. Use nondeprecated state-based text fields. Kotlin warnings and Android lint warnings fail the build.
+
 Source of truth: repository root `MOBILE_RULES.md`, `PLAN.md`, `STATUS.md` and `src/pages/`. Feature behavior and permissions must match React Native.
 
 | Feature | Native status | Required acceptance |

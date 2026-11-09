@@ -10,13 +10,13 @@ Foundation: Kotlin/Compose, single-activity app, light/dark Restora color tokens
 
 ## Build
 
-Requirements: JDK 17, Android SDK Platform 36, Build Tools 36.0.0, Gradle 9.1.0. Open `android-native/` in Android Studio, or from that directory run:
+Requirements: JDK 21 for Gradle (Java bytecode targets 17), Android SDK Platform 37, Build Tools 36.0.0, Gradle 9.5.0, AGP 9.3.1, Kotlin/Compose compiler 2.4.20. Open `android-native/` in Android Studio, or from that directory run:
 
 ```bash
 gradle :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
 ```
 
-GitHub Actions also compiles and lints the app. No secrets are required to compile. Default HTTPS server is `https://restora.live/api/v1`; do not commit real credentials or cookie values.
+GitHub Actions is configured to compile, run unit tests and lint. A successful Android build is not verified until a runner executes it. Kotlin and Android lint warnings are treated as errors. No secrets are required to compile. Default HTTPS server is `https://restora.live/api/v1`; do not commit real credentials or cookie values.
 
 ## Architecture
 
