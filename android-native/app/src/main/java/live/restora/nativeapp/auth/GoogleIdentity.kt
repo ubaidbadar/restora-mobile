@@ -24,7 +24,7 @@ class GoogleIdentity(private val activity: Activity) {
             nonceBytes, Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING
         )
         val option = GetSignInWithGoogleOption.Builder(
-            serverClientId = BuildConfig.GOOGLE_WEB_CLIENT_ID
+            BuildConfig.GOOGLE_WEB_CLIENT_ID
         ).setNonce(nonce).build()
         val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
         val credential = CredentialManager.create(activity)

@@ -6,7 +6,7 @@ This is the **separate, in-progress native Android implementation** of the exist
 
 Foundation: Kotlin/Compose, single-activity app, light/dark Restora color tokens, API client, Android Keystore-encrypted session storage, lifecycle-aware StateFlow, permission-gated tabs, and read-only Today / Orders / Tables / Customers views. Order status advancement is deliberately not enabled until offline outbox/reconciliation is ready. No claim is made that the complete app has been ported or tested on devices.
 
-**Not yet ported:** sign-up/verification/forgot password, restaurant setup/switching, offline order outbox, create/edit/pay/cancel/print order, live SSE, QR scan, customer profile/khata, menu/staff/reservations/printers, notifications, and Google sign-in. All require parity work before production replacement.
+**Not yet ported:** sign-up/verification/forgot password, restaurant setup/switching, offline order outbox, create/edit/pay/cancel/print order, live SSE, QR scan, customer profile/khata, menu/staff/reservations/printers, notifications, and production-ready Google sign-in. Native Google Credential Manager sign-in is wired but remains unverified on a registered Android device. All require parity work before production replacement.
 
 ## Build
 
@@ -16,7 +16,13 @@ Requirements: JDK 21 for Gradle (Java bytecode targets 17), Android SDK Platform
 gradle :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
 ```
 
-GitHub Actions is configured to compile, run unit tests and lint. A successful Android build is not verified until a runner executes it. Kotlin and Android lint warnings are treated as errors. No secrets are required to compile. Default HTTPS server is `https://restora.live/api/v1`; do not commit real credentials or cookie values.
+GitHub Actions is configured to compile, run unit tests and lint. A successful Android build is not verified until a runner executes it. Kotlin and Android lint warnings are treated as errors. No secrets are required to compile. Default HTTPS server is `https://restora.live/api/v1`; staff dashboard opens `https://app.restora.live`, and all table QR links use `https://restora.live/t/<code>`. Google sign-in uses the public web OAuth client ID supplied for Restora. Do not commit real credentials or cookie values.
+
+## Google sign-in / Firebase setup
+
+The sign-in button uses **stable Credential Manager**, not the deprecated GoogleSignIn SDK, and sends the Google ID token to the existing Better Auth backend. **It does not require Firebase or a google-services Gradle plugin**.
+
+Important: the uploaded `google-services.json` is registered for `com.restoralive.app` (the existing Expo app). The Kotlin preview is intentionally `live.restora.nativeapp`; blindly copying that file into this app would cause a package mismatch and potentially break Firebase builds. Instead, register the preview package + the signing SHA-1 as a separate **Android OAuth client** in the same Google Cloud project. See [GOOGLE_SIGN_IN.md](./GOOGLE_SIGN_IN.md) for exact steps. Do not change the Kotlin preview applicationId to the production package yet.
 
 ## Faster local builds
 

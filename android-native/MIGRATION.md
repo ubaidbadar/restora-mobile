@@ -1,6 +1,6 @@
 # Native Android parity tracker
 
-Dependency baseline: AGP 9.3.1 / Gradle 9.5.0 / Kotlin and Compose compiler 2.4.21 / Compose BOM 2026.09.00 / compileSdk 37. Use nondeprecated state-based text fields. Kotlin warnings and Android lint warnings fail the build.
+Dependency baseline: AGP 9.3.3 / Gradle 9.5.0 / Kotlin and Compose compiler 2.4.21 / Compose BOM 2026.09.00 / compileSdk 37. Use nondeprecated state-based text fields. Kotlin warnings and Android lint warnings fail the build.
 
 Source of truth: repository root `MOBILE_RULES.md`, `PLAN.md`, `STATUS.md` and `src/pages/`. Feature behavior and permissions must match React Native.
 
@@ -16,7 +16,9 @@ Source of truth: repository root `MOBILE_RULES.md`, `PLAN.md`, `STATUS.md` and `
 | Onboarding and account recovery | Not started | Match existing account flow |
 | New/edit orders | Not started | Add-ons, deals, tax, offline and idempotency |
 | Menu, reservations, staff, printers | Not started | Permission-gated forms and actions |
-| FCM push, SSE, audio, QR | Not started | Lifecycle/background behavior |
+| Native Google sign-in | Credential Manager flow implemented; device unverified | Register preview package + signing SHA-1, verify backend provider and cookie against server |
+| Table QR guest links | Public web link open/share implemented | Every URL uses restora.live/t/code, never staff app host; QR image/scanner still missing |
+| FCM push, SSE, audio, QR scanner | Not started | Lifecycle/background behavior |
 | Testing and accessibility | Not completed | Build, lint, unit, UI, TalkBack, slow-network and process death |
 
 ## Non-negotiable behavior

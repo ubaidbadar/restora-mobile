@@ -12,6 +12,8 @@ This document covers **`android-native/` only**, not the existing production Exp
 | Lifecycle runtime/viewmodel Compose | 2.11.0 | Stable; requires a newer compile SDK |
 | Kotlin coroutines Android | 1.11.0 | Stable release |
 | JUnit | 4.13.2 | JVM unit tests only |
+| Credential Manager + Play Services | 1.6.0 | Latest stable (avoid 1.7 alpha) |
+| Google ID Token | 1.2.1 | Latest stable Google Identity SDK |
 | compileSdk | 37 | Required by Compose 1.12+ / Lifecycle 2.11 |
 | targetSdk | 36 | Held at the existing preview behavior level pending API 37 runtime QA |
 | minSdk | 26 | Native preview support for Android 8.0+ |
@@ -31,6 +33,15 @@ Sources consulted (official unless otherwise marked):
 ## Deprecation policy
 
 The native project uses `TextFieldState`, `OutlinedSecureTextField`, and `TextFieldLineLimits`, not the deprecated value-based Compose text fields or visual password transformation. Android Gradle Plugin 9 built-in Kotlin eliminates the old `kotlin-android` plugin; compiler configuration uses `compilerOptions`. The repo check `python3 android-native/scripts/check_api_surface.py` rejects common regressions. Kotlin compiler warnings and Android Lint warnings fail CI, including deprecated APIs that produce warnings.
+
+## Restora URLs, QR codes, and Google setup
+
+- Backend: `https://restora.live` with API paths under `/api/v1`.
+- Staff web dashboard: `https://app.restora.live`.
+- Public table QR links: `https://restora.live/t/<restaurant>/<table-key>`, or `/t/<legacy-code>`. The code is obtained from the backend's `qrCode` field and validated before use.
+- Android Google authentication uses Credential Manager to get a Google ID token with an independent, secure random nonce and sends `{provider:"google",idToken:{token,nonce}}` to Better Auth. No token is logged.
+- The web client ID is public config, **not** a Google client secret; the actual backend must have `GOOGLE_CLIENT_ID` configured to accept that ID.
+- The supplied `google-services.json` belongs to `com.restoralive.app`, whereas the preview uses `live.restora.nativeapp`. Do not bundle the mismatch or enable the Firebase plugin. See `GOOGLE_SIGN_IN.md`.
 
 ## Validation status
 

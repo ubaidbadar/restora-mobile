@@ -25,5 +25,9 @@ class RestoraLinksTest {
         assertEquals("https://app.restora.live", RestoraLinks.webDashboard)
         assertEquals("https://restora.live", RestoraLinks.publicBase)
         assertTrue(RestoraLinks.webDashboard != RestoraLinks.publicBase)
+        assertEquals(
+            "415170912813-7ikcdht16n2vgumkkpvaslda5c8kbbop.apps.googleusercontent.com",
+            live.restora.nativeapp.BuildConfig.GOOGLE_WEB_CLIENT_ID
+        )
     }
 }
