@@ -9,6 +9,12 @@ on:
     paths:
       - 'android-native/**'
       - '.github/workflows/native-android.yml'
+
+# Push + pull_request can fire for the same commit; avoid overlapping full builds.
+concurrency:
+  group: native-android-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,6 +31,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.5.0'
+          # This long-lived feature branch can populate the cache for later pushes.
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
       - name: Reject known deprecated API usage
         working-directory: android-native
         run: python3 scripts/check_api_surface.py
