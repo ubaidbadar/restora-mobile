@@ -224,11 +224,16 @@ private fun SignInScreen(
             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
         ) { Text(if (busy) "Signing in…" else "Sign in") }
         Text(
-            "This native preview does not yet support account creation or recovery. Use the current Restora app for those actions.",
+            "Account creation and password recovery are available on Restora web.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 16.dp)
         )
+        Spacer(Modifier.height(8.dp))
+        val context = LocalContext.current
+        TextButton(onClick = { openExternal(context, RestoraLinks.webDashboard) }) {
+            Text("Open Restora web")
+        }
     }
 }
 
@@ -247,8 +252,13 @@ private fun WorkspaceApp(
             verticalArrangement = Arrangement.Center
         ) {
             Text("Select your restaurant", style = MaterialTheme.typography.headlineSmall)
-            Text("Restaurant onboarding is not yet available in the native preview. You can use the existing Restora app to finish setup.")
+            Text("Restaurant onboarding is not yet available in the native preview. Complete it on Restora web.")
             Spacer(Modifier.height(16.dp))
+            val context = LocalContext.current
+            Button(onClick = { openExternal(context, RestoraLinks.webDashboard) }) {
+                Text("Open web dashboard")
+            }
+            Spacer(Modifier.height(12.dp))
             OutlinedButton(onClick = onSignOut) { Text("Sign out") }
         }
         return
