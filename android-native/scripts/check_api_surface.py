@@ -34,7 +34,7 @@ root_gradle = (ROOT / "build.gradle.kts").read_text(encoding="utf-8")
 wrapper = (ROOT / "gradle" / "wrapper" / "gradle-wrapper.properties").read_text(encoding="utf-8")
 required = {
     "AGP pinned to 9.3.3": ('9.3.3', root_gradle),
-    "Compose Compiler pinned to Kotlin 2.4.20": ('org.jetbrains.kotlin.plugin.compose") version "2.4.20"', root_gradle),
+    "Compose Compiler pinned to Kotlin 2.4.21": ('org.jetbrains.kotlin.plugin.compose") version "2.4.21"', root_gradle),
     "Gradle wrapper 9.5": ('gradle-9.5.0-bin.zip', wrapper),
     "Compile SDK 37": ("compileSdk = 37", gradle),
     "Stable Compose BOM": ("androidx.compose:compose-bom:2026.09.00", gradle),

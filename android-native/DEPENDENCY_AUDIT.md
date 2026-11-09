@@ -6,7 +6,7 @@ This document covers **`android-native/` only**, not the existing production Exp
 |---|---|---|
 | Android Gradle Plugin | 9.3.3 | Supports API 37 with Gradle 9.5; 9.3.3 fixes R8/D8 errors, including an intermittent APK verification crash |
 | Gradle | 9.5.0 | Matches the AGP 9.3 minimum |
-| Kotlin + Compose compiler plugin | 2.4.20 | Stable plugin, compatible with Gradle 9.5 and AGP 9.3 family; AGP's built-in Kotlin removes the old android plugin |
+| Kotlin + Compose compiler plugin | 2.4.21 | Stable plugin, compatible with Gradle 9.5 and AGP 9.3 family; AGP's built-in Kotlin removes the old android plugin |
 | Jetpack Compose BOM | 2026.09.00 | Android's documented stable Compose baseline; aligns Compose UI, foundation and Material 3 |
 | Activity Compose | 1.13.0 | Stable |
 | Lifecycle runtime/viewmodel Compose | 2.11.0 | Stable; requires a newer compile SDK |
