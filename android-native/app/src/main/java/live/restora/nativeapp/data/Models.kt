@@ -42,7 +42,8 @@ data class FloorTable(
     val seats: Int,
     val busyOrders: Int,
     val guestCalls: Int,
-    val archived: Boolean
+    val archived: Boolean,
+    val qrCode: String
 )
 data class Customer(
     val id: String,
@@ -110,7 +111,8 @@ internal fun JSONObject.toFloorTable(): FloorTable = FloorTable(
     seats = optInt("seats", 0),
     busyOrders = optJSONArray("orders")?.length() ?: 0,
     guestCalls = optJSONArray("requests")?.length() ?: 0,
-    archived = optBoolean("archived", false)
+    archived = optBoolean("archived", false),
+    qrCode = text("qrCode")
 )
 internal fun JSONObject.toCustomer(): Customer = Customer(
     id = text("_id"),

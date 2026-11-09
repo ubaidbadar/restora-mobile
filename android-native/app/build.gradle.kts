@@ -15,6 +15,9 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         buildConfigField("String", "API_BASE_URL", "\"https://restora.live/api/v1\"")
+        buildConfigField("String", "WEB_APP_URL", "\"https://app.restora.live\"")
+        buildConfigField("String", "PUBLIC_QR_BASE_URL", "\"https://restora.live\"")
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"415170912813-7ikcdht16n2vgumkkpvaslda5c8kbbop.apps.googleusercontent.com\"")
     }
 
     buildFeatures {

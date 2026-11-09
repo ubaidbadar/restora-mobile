@@ -6,3 +6,4 @@
 *.iml
 *.apk
 *.aab
+/app/google-services.json

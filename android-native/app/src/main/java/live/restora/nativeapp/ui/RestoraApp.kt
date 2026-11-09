@@ -1,5 +1,12 @@
 package live.restora.nativeapp.ui
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import live.restora.nativeapp.data.RestoraLinks
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -67,6 +74,33 @@ import java.util.Locale
 
 private val pakistanLocale = Locale.Builder().setLanguage("en").setRegion("PK").build()
 private fun rupees(value: Double): String = "Rs " + NumberFormat.getNumberInstance(pakistanLocale).format(value)
+
+/** External links stay HTTPS and outside the authenticated native app. */
+private fun openExternal(context: Context, url: String) {
+    try {
+        require(Uri.parse(url).scheme == "https")
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    } catch (_: ActivityNotFoundException) {
+        Toast.makeText(context, "No browser is available on this device", Toast.LENGTH_SHORT).show()
+    } catch (_: SecurityException) {
+        Toast.makeText(context, "Could not open the browser", Toast.LENGTH_SHORT).show()
+    }
+}
+
+private fun sharePublicLink(context: Context, url: String) {
+    try {
+        require(Uri.parse(url).scheme == "https")
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, url)
+        }
+        context.startActivity(Intent.createChooser(intent, "Share table link").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    } catch (_: ActivityNotFoundException) {
+        Toast.makeText(context, "No sharing app is available", Toast.LENGTH_SHORT).show()
+    } catch (_: SecurityException) {
+        Toast.makeText(context, "Could not share the link", Toast.LENGTH_SHORT).show()
+    }
+}
 
 @Composable
 fun RestoraApp(model: RestoraViewModel) {
@@ -409,6 +443,7 @@ private fun OrderRow(order: Order, onClick: () -> Unit) {
 
 @Composable
 private fun TablesScreen(slot: Loadable<List<FloorTable>>, onRefresh: () -> Unit) {
+    val context = LocalContext.current
     ContentState(slot, onRefresh) { all ->
         val tables = remember(all) {
             all.filterNot(FloorTable::archived).sortedWith(
@@ -444,6 +479,16 @@ private fun TablesScreen(slot: Loadable<List<FloorTable>>, onRefresh: () -> Unit
                                 style = MaterialTheme.typography.bodySmall)
                             if (table.section.isNotBlank()) Text(table.section,
                                 style = MaterialTheme.typography.bodySmall)
+                            val publicUrl = RestoraLinks.tableQrUrlOrNull(table.qrCode)
+                            if (publicUrl != null) {
+                                Spacer(Modifier.height(4.dp))
+                                TextButton(onClick = { openExternal(context, publicUrl) }) {
+                                    Text("Open guest menu")
+                                }
+                                TextButton(onClick = { sharePublicLink(context, publicUrl) }) {
+                                    Text("Share table link")
+                                }
+                            }
                         }
                     }
                 }
@@ -507,6 +552,7 @@ private fun CustomersScreen(slot: Loadable<List<Customer>>, onRefresh: () -> Uni
 
 @Composable
 private fun MoreScreen(account: Account, busy: Boolean, onSignOut: () -> Unit) {
+    val context = LocalContext.current
     var confirmSignOut by remember { mutableStateOf(false) }
     val workplace = account.workplace
     LazyColumn(
@@ -532,6 +578,12 @@ private fun MoreScreen(account: Account, busy: Boolean, onSignOut: () -> Unit) {
                     modifier = Modifier.padding(18.dp)
                 )
             }
+        }
+        item {
+            OutlinedButton(
+                onClick = { openExternal(context, RestoraLinks.webDashboard) },
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+            ) { Text("Open web dashboard") }
         }
         item {
             OutlinedButton(
