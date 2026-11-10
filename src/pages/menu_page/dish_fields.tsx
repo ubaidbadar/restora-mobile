@@ -1,3 +1,4 @@
+import DishPhotoField from './dish_photo_field';
 import type FormComponentProps from '@/types/form_component_props';
 import type Menu from '@/types/menu';
 import CheckList from '@/ui/check_list';
@@ -13,6 +14,7 @@ export default function DishFields({ menu, ...form }: FormComponentProps & { men
   const { register, errors } = form;
   return (
     <>
+      <DishPhotoField {...form} />
       <Input label="Name" required autoCapitalize="words" {...register('name')} error={fieldError(errors, 'name')} />
       <Select label="Category" required placeholder="Pick a category" options={menu.categories.map((category) => ({ value: category._id, label: category.name }))} {...register('categoryId')} error={fieldError(errors, 'categoryId')} />
       <PriceRows {...form} name="sizes" label="Sizes and prices" namePlaceholder="e.g. Half" priceLabel="Price (Rs)" addLabel="Add sizes (Half, Full…)" namesFromTwo />
