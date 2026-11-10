@@ -4,6 +4,7 @@ import type MenuItem from '@/types/menu_item';
 export default function dealFormValues(deal: MenuItem) {
   return {
     name: deal.name,
+    photo: deal.photo,
     categoryId: deal.categoryId,
     description: deal.description ?? '',
     sizeId: deal.sizes[0]?._id,
