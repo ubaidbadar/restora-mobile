@@ -50,7 +50,7 @@ function ConnectionsScreen() {
     >
       <View className="gap-3 rounded-card border border-border bg-surface p-4">
         <Text accessibilityRole="header" className="text-heading font-semibold text-ink">Connect your number</Text>
-        <Text className="text-sm text-body">Each restaurant uses its own WhatsApp Business number. Connect or reconnect through Meta's secure web authorization.</Text>
+        <Text className="text-sm text-body">Each restaurant uses its own WhatsApp Business number. Connect or reconnect through Meta&apos;s secure web authorization.</Text>
         {config?.enabled === false && <Text className="text-sm text-warning-800">Meta Embedded Signup is not configured on the Restora backend. Contact support.</Text>}
         <Button variant="outline" icon="open-outline" disabled={config?.enabled === false}
           onPress={() => void WebBrowser.openBrowserAsync(`${WEB_URL}/settings/whatsapp`)}>
