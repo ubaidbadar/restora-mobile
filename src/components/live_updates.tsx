@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { router } from 'expo-router';
+import type Me from '@shared/me';
 import api from '@/config/api';
 import ORDER_TYPE_LABELS from '@/constants/order_type_labels';
 import useAuthStore from '@/store/auth_store';
@@ -64,6 +65,9 @@ export default function LiveUpdates() {
         getCache.update<FloorTable[]>(floorKey, (tables) =>
           tables?.map((table) => ({ ...table, requests: call.resolved ? table.requests.filter((item) => item._id !== call._id) : table._id === call.tableId ? upsertById(table.requests, request) : table.requests }))
         );
+        const calls = useAuthStore.getState().me?.workplace?.calls ?? [];
+        const row = { _id: call._id, tableId: call.tableId, tableName: call.tableName ?? '', type: call.type, createdAt: call.createdAt };
+        useAuthStore.getState().setWorkplace({ calls: call.resolved ? calls.filter((item) => item._id !== call._id) : upsertById(calls, row) });
         if (created) announce(`Table ${call.tableName ?? ''} ${call.type === 'bill' ? 'asks for the bill' : 'calls a waiter'}`, { label: 'Tables', onClick: () => router.navigate('/tables') });
       },
       // After a break in the stream, load again what came in between: once today's board is here, only the orders
@@ -78,6 +82,7 @@ export default function LiveUpdates() {
           api.get('/orders').then((res) => getCache.set(ordersKey, res.data), () => {});
         }
         if (getCache.get(floorKey)) api.get('/tables/floor').then((res) => getCache.set(floorKey, res.data), () => {});
+        api.get<Me>('/me').then((res) => useAuthStore.getState().setWorkplace({ calls: res.data.workplace?.calls }), () => {});
       }
     );
   }, []);
