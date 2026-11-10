@@ -1,4 +1,5 @@
 import { Link } from 'expo-router';
+import Can from '@/components/can';
 import { View } from 'react-native';
 import PageHeader from '@/components/page_header';
 import TabScreen from '@/components/tab_screen';
@@ -26,7 +27,7 @@ export default function TablesPage() {
       .catch((err) => toast.error(getAxiosMessage(err)));
 
   const header = (
-    <PageHeader title="Tables">
+    <PageHeader title="Tables">\n      <Can permission="tables:manage">\n        <Link href="/tables/manage" asChild>\n          <IconButton icon="settings-outline" variant="outline" label="Manage tables" />\n        </Link>\n      </Can>
       <Link href="/tables/scan" asChild>
         <IconButton icon="qr-code-outline" variant="outline" label="Scan a table's QR code" />
       </Link>
