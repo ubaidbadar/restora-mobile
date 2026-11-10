@@ -13,6 +13,8 @@ export default function MoreLayout() {
       <Stack.Screen name="whatsapp" options={{ title: 'WhatsApp inbox' }} />
       <Stack.Screen name="whatsapp-thread" options={{ title: 'WhatsApp' }} />
       <Stack.Screen name="whatsapp-settings" options={{ title: 'WhatsApp connections' }} />
+      <Stack.Screen name="restaurant-settings" options={{ title: 'Restaurant settings' }} />
+      <Stack.Screen name="branches" options={{ title: 'Branches' }} />
     </Stack>
   );
 }
