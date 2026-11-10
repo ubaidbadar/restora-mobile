@@ -115,7 +115,7 @@ export default function OrderTimeline({ order }: { order: Order }) {
   if (error && order.entries === undefined) {
     return (
       <View className="gap-3">
-        <Text className="text-sm text-danger-700">Could not load this order's history.</Text>
+        <Text className="text-sm text-danger-700">Could not load this order&apos;s history.</Text>
         <Button variant="outline" onPress={() => get()}>Try again</Button>
       </View>
     );
