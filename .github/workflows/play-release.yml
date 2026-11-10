@@ -128,7 +128,7 @@ jobs:
 
       - name: Build Android app bundle
         if: steps.aab-cache.outputs.cache-hit != 'true'
-        run: cd android && ./gradlew bundleRelease --no-daemon
+        run: cd android && ./gradlew bundleRelease --no-daemon -Pexpo.inlineModules.watchedDirectories=[]
 
       - name: Upload to Google Play
         uses: r0adkll/upload-google-play@v1
