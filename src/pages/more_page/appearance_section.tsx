@@ -46,7 +46,7 @@ export default function AppearanceSection() {
             <View className="gap-4">
               <Select label="Theme" required options={THEMES.map((theme) => ({ value: theme.value, label: theme.label }))} {...register('appearance.theme')} error={fieldError(errors, 'appearance.theme')} />
               <Select label="Light or dark" required options={MODES} {...register('appearance.mode')} error={fieldError(errors, 'appearance.mode')} />
-              <Text className="text-sm text-muted">The theme is applied to the whole restaurant. Follow device respects each phone or tablet's appearance.</Text>
+              <Text className="text-sm text-muted">The theme is applied to the whole restaurant. Follow device respects each phone or tablet&apos;s appearance.</Text>
             </View>
           )}
           component={({ open }) => <Button variant="outline" onPress={open}>Change appearance</Button>}
