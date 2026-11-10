@@ -7,6 +7,7 @@ import RequirePermission from '@/hoc/require_permission';
 import useGet from '@/hooks/useGet';
 import type FloorTable from '@/types/floor_table';
 import type Table from '@/types/table';
+import type FormComponentProps from '@/types/form_component_props';
 import Button from '@/ui/button';
 import Input from '@/ui/input';
 import confirm from '@/utils/confirm';
@@ -17,7 +18,7 @@ import TableQr from '@/pages/tables_page/table_qr';
 import batchSchema from './batch_schema';
 import tableSchema from './table_schema';
 
-function TableFields({ register, errors }: { register: (name: string) => { name: string; control: never }; errors: Record<string, unknown> }) {
+function TableFields({ register, errors }: Pick<FormComponentProps, 'register' | 'errors'>) {
   return (
     <>
       <Input label="Table name" required placeholder="e.g. T4 or Family 2" {...register('name')} error={fieldError(errors, 'name')} />
@@ -27,7 +28,7 @@ function TableFields({ register, errors }: { register: (name: string) => { name:
   );
 }
 
-function BatchFields({ register, errors }: { register: (name: string) => { name: string; control: never }; errors: Record<string, unknown> }) {
+function BatchFields({ register, errors }: Pick<FormComponentProps, 'register' | 'errors'>) {
   return (
     <>
       <Text className="text-sm text-muted">For example, prefix T and numbers 1–20 creates T1 through T20. Existing names are skipped.</Text>
