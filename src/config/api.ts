@@ -13,6 +13,14 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
+// A misconfigured API host can respond with an HTML page. Never cache it as JSON.
+api.interceptors.response.use((response) => {
+  if (typeof response.data === 'string' && /^\s*</.test(response.data)) {
+    return Promise.reject(new axios.AxiosError('The API answered with a page instead of data. Check EXPO_PUBLIC_API_URL.', 'ERR_BAD_RESPONSE', response.config, response.request, response));
+  }
+  return response;
+});
+
 api.interceptors.response.use(undefined, (error) => {
   const status = error.response?.status;
   const data = error.response?.data;
