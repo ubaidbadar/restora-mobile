@@ -68,7 +68,7 @@ export default function CustomerActions({ customer, onCustomer }: CustomerAction
           title={customer.name}
           items={[
             { label: 'Edit customer', icon: 'create-outline', symbol: 'square.and.pencil', onPress: edit, hidden: !can(workplace, 'customers:manage') },
-            { label: 'Merge a duplicate', icon: 'people-outline', onPress: merge, hidden: !can(workplace, 'customers:delete') },
+            { label: 'Merge a duplicate', icon: 'people-outline', symbol: 'person.2', onPress: merge, hidden: !can(workplace, 'customers:delete') },
             { label: 'Delete', icon: 'trash-outline', symbol: 'trash', onPress: () => void remove(), destructive: true, hidden: !can(workplace, 'customers:delete') },
           ]}
         />
