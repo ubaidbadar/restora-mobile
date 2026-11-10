@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 import can from '@shared/can';
 import { z } from 'zod';
 import api from '@/config/api';
@@ -52,7 +52,7 @@ export default function ReplyForm({ thread, onSent }: { thread: WhatsAppConversa
           </Button>
           {!mayReply && <Text className="text-sm text-muted">Your role needs permission to update orders to send replies.</Text>}
           {!windowOpen && <Text className="text-sm text-warning-800">The 24-hour service window is closed. Ask the customer to message again before replying.</Text>}
-          {windowOpen && <Text className="text-xs text-muted">Replies are available for 24 hours after the customer's latest message.</Text>}
+          {windowOpen && <Text className="text-xs text-muted">Replies are available for 24 hours after the customer&apos;s latest message.</Text>}
           {!!message && <Text className="text-sm text-muted">{message}</Text>}
         </>
       )}
