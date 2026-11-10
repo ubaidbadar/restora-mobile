@@ -29,7 +29,7 @@ export default function KhataTab({ customer, onCustomer }: KhataTabProps) {
             customer={customer}
             first={index === 0}
             onReversed={(reversed, saved) => {
-              update((list) => list?.map((item) => (item._id === reversed._id ? reversed : item)));
+              update((list) => [reversed, ...(list ?? []).map((item) => (item._id === entry._id ? { ...item, reversedAt: reversed.createdAt } : item))]);
               onCustomer(saved);
             }}
           />
