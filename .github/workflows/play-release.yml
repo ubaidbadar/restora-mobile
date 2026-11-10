@@ -2,7 +2,7 @@ name: Play Store release
 
 on:
   push:
-    branches: [stage, main]
+    branches: [dev, stage, main]
 
 permissions:
   contents: read
