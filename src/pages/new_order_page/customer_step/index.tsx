@@ -17,13 +17,27 @@ const startWith = (id: string | undefined, picked?: Order['customer']): Customer
 };
 
 /** Who the order is for: a row that opens the customer picker, then the picked customer. Optional: walk-ins have none. */
-export default function CustomerStep({ setValue, picked }: FormComponentProps & { picked?: Order['customer'] }) {
+export default function CustomerStep({ setValue, watch, picked }: FormComponentProps & { picked?: Order['customer'] }) {
   const { customer: fromParams } = useLocalSearchParams<{ customer?: string }>();
   const [customer, setCustomer] = useState(() => startWith(picked?._id ?? fromParams, picked));
 
   /** A saved customer; or, without internet, a new one the server saves when the order arrives (`newName`, `newPhone`). */
   const pick = (chosen: Customer | null, offline = false) => {
-    setValue('customerId', chosen && !offline ? chosen._id : undefined, { shouldDirty: true });
+    const previousId = watch('customerId');
+    const nextId = chosen && !offline ? chosen._id : undefined;
+    if (watch('type') === 'delivery' && previousId !== nextId) {
+      const previous = previousId
+        ? getCache.get(getCache.keyOf(`/customers/${previousId}`)) as Customer | undefined
+        : undefined;
+      const savedAddress = previous?.addresses?.find(address => address.trim());
+      if (!watch('address') || (savedAddress && watch('address') === savedAddress)) {
+        setValue('address', '');
+      }
+      if (!watch('area') || (previous?.area && watch('area') === previous.area)) {
+        setValue('area', '');
+      }
+    }
+    setValue('customerId', nextId, { shouldDirty: true });
     setValue('newName', offline ? chosen?.name : undefined);
     setValue('newPhone', offline ? chosen?.phone : undefined);
     setCustomer(chosen);
