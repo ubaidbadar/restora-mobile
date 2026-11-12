@@ -1,0 +1,15 @@
+appId: app.restora.live
+---
+# MANUAL/LOCAL ONLY. Requires a tester to sign into an isolated TEST restaurant first.
+# This is not part of automated smoke CI; it must not operate on real restaurant data.
+- launchApp:
+    clearState: false
+- assertVisible: "More"
+- takeScreenshot: "service/initial"
+- tapOn: "More"
+- assertVisible: "Working at"
+- takeScreenshot: "service/more"
+- scrollUntilVisible:
+    element: "Appearance"
+- assertVisible: "Appearance"
+- takeScreenshot: "service/appearance"

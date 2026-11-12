@@ -1,0 +1,15 @@
+appId: app.restora.live
+---
+# Safe unauthenticated smoke test. No credentials, orders or messages are sent.
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome back to Restora."
+- takeScreenshot: "auth/sign-in"
+- tapOn: "Forgot password?"
+- assertVisible: "Reset your password"
+- takeScreenshot: "auth/forgot-password"
+- tapOn: "Back to sign in"
+- assertVisible: "Welcome back to Restora."
+- tapOn: "Create an account"
+- assertVisible: "Create your account"
+- takeScreenshot: "auth/create-account"

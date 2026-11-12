@@ -1,0 +1,81 @@
+name: Android emulator smoke (release APK)
+
+on:
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      CI: "1"
+      # Never run E2E writes against production restaurants.
+      EXPO_PUBLIC_API_URL: https://dev.restora.live
+      EXPO_PUBLIC_WEB_URL: https://dev-app.restora.live
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: yarn
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install and verify sources
+        run: yarn install --frozen-lockfile && yarn verify
+      - name: Generate native Android project
+        run: npx expo prebuild --platform android --non-interactive --clean
+      - name: Build self-contained Android APK
+        run: cd android && ./gradlew :app:assembleRelease --no-daemon '-Pexpo.inlineModules.watchedDirectories=[]'
+      - name: Verify installable APK
+        run: test -s android/app/build/outputs/apk/release/app-release.apk && unzip -tqq android/app/build/outputs/apk/release/app-release.apk
+      - name: Install Maestro CLI
+        run: |
+          curl -fsSL https://get.maestro.mobile.dev | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Launch Android and run real app navigation
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          disable-animations: true
+          script: |
+            mkdir -p artifacts
+            adb install -r android/app/build/outputs/apk/release/app-release.apk
+            adb wait-for-device
+            test "$(adb shell pm path app.restora.live | wc -l)" -ge 1
+            # Independent native launch proves the APK is runnable even if Maestro loses its ADB transport.
+            adb shell monkey -p app.restora.live -c android.intent.category.LAUNCHER 1
+            sleep 8
+            adb exec-out screencap -p > artifacts/android-first-launch.png
+            adb logcat -d -v brief > artifacts/android-first-launch-logcat.txt
+            # In CI the app was freshly installed. Avoid clearing data a second time through Maestro:
+            # its driver previously lost ADB connectivity during that operation on emulator-5554.
+            sed 's/clearState: true/clearState: false/' .maestro/auth_navigation.yaml > artifacts/auth_navigation_ci.yaml
+            maestro test --test-output-dir=artifacts/maestro artifacts/auth_navigation_ci.yaml
+            adb logcat -d -v brief > artifacts/android-logcat.txt
+            if grep -E 'FATAL EXCEPTION|Fatal signal' artifacts/android-logcat.txt; then
+              echo "::error::Android process crashed during smoke test"
+              exit 1
+            fi
+      - name: Keep screenshots and crash logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-android-emulator-smoke
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 7

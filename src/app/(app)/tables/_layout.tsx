@@ -7,6 +7,7 @@ export default function TablesLayout() {
     <Stack screenOptions={{ ...TAB_STACK_OPTIONS, statusBarStyle: useColorScheme() === 'dark' ? 'light' : 'dark' }}>
       <Stack.Screen name="index" options={{ title: 'Tables', headerShown: false }} />
       <Stack.Screen name="scan" options={{ presentation: 'fullScreenModal', headerShown: false }} />
+      <Stack.Screen name="manage" options={{ title: 'Manage tables' }} />
     </Stack>
   );
 }

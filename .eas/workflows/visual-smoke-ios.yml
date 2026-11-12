@@ -1,0 +1,15 @@
+name: Visual smoke test - iOS Simulator
+# Intentionally manual. No Apple distribution credentials needed for a simulator build.
+jobs:
+  build_ios:
+    type: build
+    params:
+      platform: ios
+      profile: e2e-test
+  smoke_ios:
+    needs: [build_ios]
+    type: maestro
+    params:
+      build_id: ${{ needs.build_ios.outputs.build_id }}
+      flow_path: ['.maestro/auth_navigation.yaml']
+      record_screen: true

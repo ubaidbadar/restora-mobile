@@ -11,6 +11,7 @@ import confirm from '@/utils/confirm';
 import formatPhone from '@/utils/format_phone';
 import getAxiosMessage from '@/utils/get_axios_message';
 import toast from '@/utils/toast';
+import MergeCustomer from './merge_customer';
 
 interface CustomerActionsProps {
   customer: Customer;
@@ -23,7 +24,7 @@ export default function CustomerActions({ customer, onCustomer }: CustomerAction
   const remove = async () => {
     const ok = await confirm({
       title: `Delete ${customer.name}?`,
-      message: customer.orderCount ? 'This customer has orders, so they can only be merged into another record on the web, not deleted.' : 'Only for a record saved by mistake. This cannot be undone.',
+      message: customer.orderCount ? 'This customer has orders, so they can only be merged into another record, not deleted.' : 'Only for a record saved by mistake. This cannot be undone.',
       confirmLabel: 'Delete',
       destructive: true,
     });
@@ -58,13 +59,20 @@ export default function CustomerActions({ customer, onCustomer }: CustomerAction
       }
       fields={(form) => <CustomerFields {...form} />}
       component={({ open: edit }) => (
+        <MergeCustomer
+          customer={customer}
+          onMerged={onCustomer}
+          component={({ open: merge }) => (
         <ActionMenu
           label={`More for ${customer.name}`}
           title={customer.name}
           items={[
             { label: 'Edit customer', icon: 'create-outline', symbol: 'square.and.pencil', onPress: edit, hidden: !can(workplace, 'customers:manage') },
+            { label: 'Merge a duplicate', icon: 'people-outline', symbol: 'person.2', onPress: merge, hidden: !can(workplace, 'customers:delete') },
             { label: 'Delete', icon: 'trash-outline', symbol: 'trash', onPress: () => void remove(), destructive: true, hidden: !can(workplace, 'customers:delete') },
           ]}
+        />
+          )}
         />
       )}
     />

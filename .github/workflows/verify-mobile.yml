@@ -1,0 +1,27 @@
+name: Verify mobile changes
+
+on:
+  pull_request:
+    branches: [main, dev]
+  push:
+    branches: ['feat/web-mobile-parity-20261111']
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "1"
+      EXPO_PUBLIC_API_URL: https://restora.live
+      EXPO_PUBLIC_WEB_URL: https://app.restora.live
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn verify

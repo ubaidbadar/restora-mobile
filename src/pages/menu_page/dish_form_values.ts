@@ -4,6 +4,7 @@ import type MenuItem from '@/types/menu_item';
 export default function dishFormValues(dish: MenuItem) {
   return {
     name: dish.name,
+    photo: dish.photo,
     categoryId: dish.categoryId,
     description: dish.description ?? '',
     sizes: dish.sizes.map((size) => ({ _id: size._id, name: size.name, price: String(size.price) })),

@@ -1,3 +1,4 @@
+import type AuditEntry from './audit_entry';
 import type OrderCancellation from './order_cancellation';
 import type OrderCustomer from './order_customer';
 import type OrderItem from './order_item';
@@ -13,6 +14,9 @@ export default interface Order {
   /** The branch that took the order. */
   branchId: string;
   customerId?: string;
+  /** Present only for orders initiated through a connected restaurant WhatsApp number. */
+  whatsappPhone?: string;
+  whatsappPhoneNumberId?: string;
   /** Name and phone of the customer, sent with list responses. */
   customer?: OrderCustomer;
   type: OrderType;
@@ -42,8 +46,10 @@ export default interface Order {
   createdAt: string;
   /** When the server last saved it; the app asks for what changed after it. */
   updatedAt?: string;
-  /** Taken without internet and still waiting on this device to be sent. */
-  pendingSync?: boolean;
   /** Made on the device that took the order (see `utils/own_orders`). */
   clientId?: string;
+  /** Taken without internet and still waiting on this device to be sent. */
+  pendingSync?: boolean;
+  /** Activity and change history of the order. */
+  entries?: AuditEntry[];
 }

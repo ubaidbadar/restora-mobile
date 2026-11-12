@@ -1,9 +1,11 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useCSSVariable } from 'uniwind';
+import useAuthStore from '@/store/auth_store';
+import applyAppearance from '@/utils/apply_appearance';
 
 const FONTS = {
   regular: { fontFamily: 'InstrumentSans-Regular', fontWeight: '400' as const },
@@ -19,7 +21,12 @@ const FONTS = {
  */
 export default function ThemeRoot({ children }: { children: ReactNode }) {
   const [canvas, surface, ink, border, primary] = useCSSVariable(['--color-canvas', '--color-surface', '--color-ink', '--color-border', '--color-primary']) as string[];
-  const base = useColorScheme() === 'dark' ? DarkTheme : DefaultTheme;
+  const scheme = useColorScheme();
+  const appearance = useAuthStore((state) => state.me?.workplace?.settings.appearance);
+  useEffect(() => {
+    applyAppearance(appearance);
+  }, [appearance]);
+  const base = (appearance?.mode === 'dark' || (appearance?.mode === 'system' && scheme === 'dark')) ? DarkTheme : DefaultTheme;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

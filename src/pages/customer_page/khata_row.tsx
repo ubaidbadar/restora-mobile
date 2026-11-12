@@ -34,7 +34,7 @@ export default function KhataRow({ entry, customer, first, onReversed }: KhataRo
       .post<KhataEntry & { customer: Customer }>(`/customers/${customer._id}/khata/${entry._id}/reverse`)
       .then((res) => {
         const { customer: saved, ...reversed } = res.data;
-        onReversed({ ...entry, ...reversed, reversedAt: reversed.reversedAt ?? new Date().toISOString() }, saved);
+        onReversed(reversed, saved);
         toast.success('Payment taken back');
       })
       .catch((err) => toast.error(getAxiosMessage(err)));

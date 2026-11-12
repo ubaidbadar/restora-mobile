@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import OrderDetails from '@/components/order_details';
+import OrderView from '@/components/order_view';
 import type MenuAction from '@/types/menu_action';
 import type Order from '@/types/order';
 import type OverlayTrigger from '@/types/overlay_trigger';
@@ -25,7 +25,7 @@ export default function OrderDetailsSheet({ order, advance, onPay, actions, comp
     <Sheet title={`Order #${order.dailyToken}`} component={component}>
       {({ close }) => (
         <>
-          <OrderDetails order={order} />
+          <OrderView order={order} />
           {(advance || onPay) && (
             <View className="flex-row gap-2">
               {onPay && (

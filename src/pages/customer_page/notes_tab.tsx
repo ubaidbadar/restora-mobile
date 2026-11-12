@@ -1,5 +1,7 @@
 import { Text, View } from 'react-native';
 import api from '@/config/api';
+import can from '@shared/can';
+import useAuthStore from '@/store/auth_store';
 import type Customer from '@/types/customer';
 import Button from '@/ui/button';
 import Form from '@/ui/form';
@@ -14,6 +16,7 @@ interface NotesTabProps {
 
 /** What the staff should remember about the customer, and their saved addresses. */
 export default function NotesTab({ customer, onCustomer }: NotesTabProps) {
+  const canEdit = useAuthStore((state) => can(state.me?.workplace, 'customers:manage'));
   return (
     <View className="gap-5">
       <Form
@@ -31,13 +34,13 @@ export default function NotesTab({ customer, onCustomer }: NotesTabProps) {
         }
         component={({ register, loading, message, error, onSubmit }) => (
           <>
-            <Input label="Notes" multiline placeholder="Allergies, favourite table, how they like their karahi…" {...register('notes')} error={error} />
-            <View className="flex-row items-center gap-3">
+            <Input label="Notes" multiline editable={canEdit} placeholder="Allergies, favourite table, how they like their karahi…" {...register('notes')} error={error} />
+            {canEdit && <View className="flex-row items-center gap-3">
               <Button disabled={loading} onPress={onSubmit}>
                 Save notes
               </Button>
               {message && <Text className="text-sm font-medium text-success-700">{message}</Text>}
-            </View>
+            </View>}
           </>
         )}
       />

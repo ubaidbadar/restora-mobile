@@ -1,4 +1,5 @@
 import { Text, View } from 'react-native';
+import DishPhotoField from './dish_photo_field';
 import type FormComponentProps from '@/types/form_component_props';
 import type Menu from '@/types/menu';
 import CheckList from '@/ui/check_list';
@@ -25,6 +26,7 @@ export default function DealFields({ menu, ...form }: FormComponentProps & { men
   const { register, errors } = form;
   return (
     <>
+      <DishPhotoField {...form} />
       <Input label="Name" required autoCapitalize="words" placeholder="e.g. Deal 1" {...register('name')} error={fieldError(errors, 'name')} />
       <Select label="Category" required placeholder="Pick a category" options={menu.categories.map((category) => ({ value: category._id, label: category.name }))} {...register('categoryId')} error={fieldError(errors, 'categoryId')} />
       <Input label="Deal price (Rs)" required keyboardType="number-pad" {...register('price')} error={fieldError(errors, 'price')} />

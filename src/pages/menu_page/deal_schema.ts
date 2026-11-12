@@ -28,6 +28,7 @@ const dealSchema = z
   .object({
     name: requiredText('Enter the deal name').pipe(z.string().max(80)),
     categoryId: requiredText('Pick a category'),
+  photo: z.string().nullish(),
     description: z.string().trim().max(200).default(''),
     sizeId: z.string().optional(),
     price: z.union([z.number(), z.string().trim().min(1, 'Enter the price')]).pipe(amountField),

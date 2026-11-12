@@ -7,7 +7,7 @@ export default interface OutboxState {
   savedIds: Record<string, string>;
   online: boolean;
   add: (item: OutboxItem) => void;
-  /** Takes a sent (or refused) item out; `savedId` is the server's id for a new order. */
+  /** Takes a successfully sent item out; rejected changes stay for human review. */
   done: (id: string, savedId?: string) => void;
   /** Changes a waiting item in place, e.g. an order taken offline and edited before it was sent. */
   replace: (id: string, changes: Partial<OutboxItem>) => void;

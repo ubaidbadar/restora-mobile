@@ -1,5 +1,6 @@
 import type DealPart from './deal_part';
 import type MenuSize from './menu_size';
+import type PhotoSizes from './photo_sizes';
 
 export default interface MenuItem {
   _id: string;
@@ -8,6 +9,8 @@ export default interface MenuItem {
   description?: string;
   /** Photo URL, when one was uploaded. */
   photo?: string;
+  /** Its smaller sizes and blurred preview (photos saved before sizes existed may not have them yet). */
+  photoSizes?: PhotoSizes;
   sizes: MenuSize[];
   addonGroupIds: string[];
   /** A deal: the dishes in it, sold together at its own price. Empty for a dish. */

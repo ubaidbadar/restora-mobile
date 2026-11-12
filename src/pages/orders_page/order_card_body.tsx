@@ -74,7 +74,7 @@ export default function OrderCardBody({ order, actions, advanceLabel, payable, o
           </View>
           {isNew && <Badge variant="primary">Just in</Badge>}
           {order.pendingSync && <Badge>Waiting to sync</Badge>}
-          {order.status === 'pending' && <Badge variant="warning">From table QR</Badge>}
+          {order.status === 'pending' && <Badge variant="warning">{order.whatsappPhone ? 'From WhatsApp' : 'From table QR'}</Badge>}
         </View>
       </View>
 
