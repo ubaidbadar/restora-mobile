@@ -1,8 +1,19 @@
 name: Play Store release
 
 on:
-  push:
-    branches: [stage, main]
+  # Publishing a Play build is a separate, deliberate release decision.
+  # In particular, merging mobile parity must not immediately upload to production.
+  workflow_dispatch:
+    inputs:
+      track:
+        description: 'Play test/release track'
+        type: choice
+        required: true
+        default: internal
+        options:
+          - internal
+          - beta
+          - production
 
 permissions:
   contents: read
@@ -56,12 +67,13 @@ jobs:
           if [ -z "$KEY_PASSWORD" ]; then echo "Missing KEY_PASSWORD secret."; exit 1; fi
           case "$EXPO_PUBLIC_API_URL" in https://*) ;; *) echo "EXPO_PUBLIC_API_URL must start with https://"; exit 1 ;; esac
 
-      - name: Select Play track
+      - name: Select explicitly requested Play track
+        env:
+          REQUESTED_TRACK: ${{ inputs.track }}
         run: |
-          case "${GITHUB_REF_NAME}" in
-            dev) echo "TRACK=internal" >> "$GITHUB_ENV" ;;
-            stage) echo "TRACK=beta" >> "$GITHUB_ENV" ;;
-            main) echo "TRACK=production" >> "$GITHUB_ENV" ;;
+          case "$REQUESTED_TRACK" in
+            internal|beta|production) echo "TRACK=$REQUESTED_TRACK" >> "$GITHUB_ENV" ;;
+            *) echo "Invalid Play track" >&2; exit 1 ;;
           esac
 
       - name: Restore built AAB from cache
