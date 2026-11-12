@@ -1,0 +1,16 @@
+{
+  "cli": {
+    "version": ">= 19.0.0"
+  },
+  "build": {
+    "e2e-test": {
+      "withoutCredentials": true,
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": true
+      }
+    }
+  }
+}
