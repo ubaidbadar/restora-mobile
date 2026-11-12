@@ -51,11 +51,13 @@ function ConnectionsScreen() {
       <View className="gap-3 rounded-card border border-border bg-surface p-4">
         <Text accessibilityRole="header" className="text-heading font-semibold text-ink">Connect your number</Text>
         <Text className="text-sm text-body">Each restaurant uses its own WhatsApp Business number. Connect or reconnect through Meta&apos;s secure web authorization.</Text>
-        {config?.enabled === false && <Text className="text-sm text-warning-800">Meta Embedded Signup is not configured on the Restora backend. Contact support.</Text>}
-        <Button variant="outline" icon="open-outline" disabled={config?.enabled === false}
-          onPress={() => void WebBrowser.openBrowserAsync(`${WEB_URL}/settings/whatsapp`)}>
-          Open Meta signup on web
-        </Button>
+        {config?.enabled === false && <Text className="text-sm text-warning-800">WhatsApp connection setup is not available right now. Contact Restora support.</Text>}
+        {config?.enabled && config.appId && config.configId && (
+          <Button variant="outline" icon="open-outline"
+            onPress={() => void WebBrowser.openBrowserAsync(`${WEB_URL}/settings/whatsapp`)}>
+            Open Meta signup on web
+          </Button>
+        )}
         <Text className="text-xs text-muted">You may need to sign in separately in the browser and select the correct restaurant branch. The Meta authorization callback returns to the web app; this app does not handle the one-time code.</Text>
       </View>
       <Text accessibilityRole="header" className="text-heading font-semibold text-ink">Connected numbers · {connections.length}</Text>
