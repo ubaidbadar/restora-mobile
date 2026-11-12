@@ -9,5 +9,7 @@ appId: app.restora.live
 - tapOn: "More"
 - assertVisible: "Working at"
 - takeScreenshot: "service/more"
-- tapOn: "Appearance"
+- scrollUntilVisible:
+    element: "Appearance"
+- assertVisible: "Appearance"
 - takeScreenshot: "service/appearance"
