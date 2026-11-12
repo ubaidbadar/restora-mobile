@@ -47,6 +47,7 @@ Test destructive actions only on disposable records. Never store credentials or 
 | Priority | Scenario | Required assertions |
 | --- | --- | --- |
 | P0 | Waiter creates order with variants | Saved exactly once; card, totals and kitchen slip agree |
+| P0 | Delivery customer selected before or after order type | Saved address and area prefill, manual destination stays editable, switching customers clears only auto-filled values |
 | P0 | Start order offline and force-stop app | Saved order survives restart; pending badge; no data loss |
 | P0 | Connection flaps during outbox replay | No duplicate order/payment; failure stays visible and retryable |
 | P0 | Switch branches/restaurants during pending sync | No cross-tenant customer/order visibility or wrong-branch send |
