@@ -1,0 +1,16 @@
+name: Visual smoke test - Android
+# Intentionally no automatic trigger. Run on demand after checking the test build/API.
+# EAS Maestro tests are in alpha and consume cloud build/test resources.
+jobs:
+  build_android:
+    type: build
+    params:
+      platform: android
+      profile: e2e-test
+  smoke_android:
+    needs: [build_android]
+    type: maestro
+    params:
+      build_id: ${{ needs.build_android.outputs.build_id }}
+      flow_path: ['.maestro/auth_navigation.yaml']
+      record_screen: true
