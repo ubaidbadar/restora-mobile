@@ -27,7 +27,12 @@ export default function TablesPage() {
       .catch((err) => toast.error(getAxiosMessage(err)));
 
   const header = (
-    <PageHeader title="Tables">\n      <Can permission="tables:manage">\n        <Link href="/tables/manage" asChild>\n          <IconButton icon="settings-outline" variant="outline" label="Manage tables" />\n        </Link>\n      </Can>
+    <PageHeader title="Tables">
+      <Can permission="tables:manage">
+        <Link href="/tables/manage" asChild>
+          <IconButton icon="settings-outline" variant="outline" label="Manage tables" />
+        </Link>
+      </Can>
       <Link href="/tables/scan" asChild>
         <IconButton icon="qr-code-outline" variant="outline" label="Scan a table's QR code" />
       </Link>
