@@ -4,6 +4,8 @@ import getCache from '@/store/get_cache';
 import type Customer from '@/types/customer';
 import type Order from '@/types/order';
 import calcTotals from '@/utils/calc_totals';
+import serviceChargeOf from '@shared/service_charge_of';
+import type CartItem from '@/types/cart_item';
 
 /** The order as the board shows it while it waits to sync, worked out on this device from the form and the menu prices. */
 export default function offlineOrder(data: FieldValues, clientId: string, token: string): Order {
@@ -12,6 +14,11 @@ export default function offlineOrder(data: FieldValues, clientId: string, token:
   const rates: Record<string, number> = me.workplace!.settings.taxByPaymentMethod;
   const taxRate = method ? (rates[method] ?? 0) : 0;
   const deliveryFee = data.type === 'delivery' ? data.deliveryFee : 0;
+  const cartItems = data.items as CartItem[];
+  const items = cartItems.map(({ priceOverride, ...item }) => ({ ...item, menuPrice: item.menuPrice ?? item.price, price: priceOverride ?? item.price }));
+  const baseTotals = calcTotals(items, data.discount, 0, deliveryFee);
+  const serviceCharge = serviceChargeOf(data.type, baseTotals.subtotal, baseTotals.discount, me.workplace!.settings.dineInServiceCharge);
+  const totals = calcTotals(items, data.discount, taxRate, deliveryFee, serviceCharge.serviceCharge, serviceCharge.serviceChargeTaxable);
   const saved = (getCache.get(getCache.keyOf('/customers')) as Customer[] | undefined)?.find((customer) => customer._id === data.customerId);
   const name = saved?.name ?? data.newName;
   return {
@@ -22,8 +29,9 @@ export default function offlineOrder(data: FieldValues, clientId: string, token:
     customer: name ? { _id: data.customerId ?? '', name, phone: saved?.phone ?? data.newPhone ?? '' } : undefined,
     type: data.type,
     status: 'new',
-    items: data.items,
-    ...calcTotals(data.items, data.discount, taxRate, deliveryFee),
+    items,
+    ...totals,
+    ...serviceCharge,
     taxRate,
     deliveryFee,
     paymentMethod: method,
