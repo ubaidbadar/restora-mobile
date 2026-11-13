@@ -5,6 +5,8 @@ on:
     branches: [main, dev, stage]
   push:
     branches: [main, dev, stage]
+  schedule:
+    - cron: '47 2 * * *'
   workflow_dispatch:
     inputs:
       require_authenticated:
@@ -64,6 +66,7 @@ jobs:
     timeout-minutes: 75
     env:
       CI: '1'
+      MAESTRO_CLI_NO_ANALYTICS: '1'
       EXPO_PUBLIC_API_URL: ${{ inputs.api_url || vars.RESTORA_E2E_API_URL || 'https://dev.restora.live' }}
       E2E_EMAIL: ${{ secrets.RESTORA_E2E_EMAIL }}
       E2E_PASSWORD: ${{ secrets.RESTORA_E2E_PASSWORD }}
