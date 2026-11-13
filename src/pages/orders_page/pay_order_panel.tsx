@@ -41,7 +41,7 @@ export default function PayOrderPanel({ order, onOrderUpdated, ...overlay }: Pay
           className="min-h-14 flex-row items-center justify-between rounded-control border border-border-strong bg-surface px-4 active:bg-sunken"
         >
           <Text className="text-base font-medium text-ink">{PAYMENT_LABELS[method]}</Text>
-          <Text className="text-base font-semibold text-ink">{formatRs(calcTotals(order.items, order.discount, taxByPaymentMethod[method] ?? 0, order.deliveryFee).total)}</Text>
+          <Text className="text-base font-semibold text-ink">{formatRs(calcTotals(order.items, order.discount, taxByPaymentMethod[method] ?? 0, order.deliveryFee, order.serviceCharge ?? 0, order.serviceChargeTaxable ?? true).total)}</Text>
         </Pressable>
       ))}
     </SheetPanel>
