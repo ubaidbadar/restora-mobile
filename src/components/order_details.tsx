@@ -29,6 +29,7 @@ function receiptText(order: Order, restaurantName: string): string {
     '',
     `Subtotal: ${formatRs(order.subtotal)}`,
     ...(order.discount ? [`Discount: -${formatRs(order.discount)}`] : []),
+    ...(order.serviceCharge ? [`Service charge: ${formatRs(order.serviceCharge)}`] : []),
     order.paymentMethod ? `Tax (${order.taxRate}%): ${formatRs(order.tax)}` : 'Tax: added when paid',
     ...(order.deliveryFee ? [`Delivery: ${formatRs(order.deliveryFee)}`] : []),
     `Total: ${formatRs(order.total)}`,
@@ -66,6 +67,7 @@ export default function OrderDetails({ order }: { order: Order }) {
                 {item.qty} × {item.name}
               </Text>
               {lineDetails(item) !== '' && <Text className="text-sm text-muted">{lineDetails(item)}</Text>}
+              {item.menuPrice !== undefined && item.menuPrice !== item.price && <Text className="text-xs text-muted">Price adjusted · Menu {formatRs(item.menuPrice)} / charged {formatRs(item.price)} each</Text>}
               {item.note && <Text className="text-sm italic text-muted">“{item.note}”</Text>}
             </View>
             <Text className="text-base text-body">{formatRs(item.price * item.qty)}</Text>
