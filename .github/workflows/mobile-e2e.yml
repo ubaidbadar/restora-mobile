@@ -123,9 +123,10 @@ jobs:
             maestro test --format JUNIT --output .maestro/results/guest-sign-in.xml --test-output-dir .maestro/results/guest .maestro/flows/guest-sign-in.yaml
 
             if [ -n "$E2E_EMAIL" ] && [ -n "$E2E_PASSWORD" ]; then
-              maestro test --format JUNIT --output .maestro/results/authenticated-orders.xml --test-output-dir .maestro/results/authenticated .maestro/flows/authenticated-orders.yaml \
+              maestro test --format JUNIT --output .maestro/results/authenticated-orders.xml --test-output-dir .maestro/results/authenticated \
                 -e E2E_EMAIL="$E2E_EMAIL" \
-                -e E2E_PASSWORD="$E2E_PASSWORD"
+                -e E2E_PASSWORD="$E2E_PASSWORD" \
+                .maestro/flows/authenticated-orders.yaml
             elif [ "$REQUIRE_AUTHENTICATED" = "true" ]; then
               echo "::error::Authenticated Maestro flow was required but credentials were not supplied."
               exit 1
