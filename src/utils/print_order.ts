@@ -115,6 +115,7 @@ export default async function printOrder(order: Order, kind: 'kitchen' | 'receip
           ${stamp}
           ${line('Subtotal', formatRs(order.subtotal))}
           ${order.discount ? line('Discount', `− ${formatRs(order.discount)}`) : ''}
+          ${order.serviceCharge ? line('Service charge', formatRs(order.serviceCharge)) : ''}
           ${order.paymentMethod ? line(`Tax (${order.taxRate}%)`, formatRs(order.tax)) : line('Tax', 'Added when paid')}
           ${order.deliveryFee ? line('Delivery', formatRs(order.deliveryFee)) : ''}
           ${line('Total', formatRs(order.total), 'grand')}
