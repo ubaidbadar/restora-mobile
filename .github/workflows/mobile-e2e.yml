@@ -1,0 +1,145 @@
+name: Android Maestro E2E
+
+on:
+  pull_request:
+    branches: [main, dev, stage]
+  push:
+    branches: [main, dev, stage]
+  workflow_dispatch:
+    inputs:
+      require_authenticated:
+        description: 'Fail unless the signed-in Orders/Create Order journey runs'
+        type: boolean
+        required: true
+        default: false
+      api_url:
+        description: 'API environment used by the test APK'
+        type: string
+        required: false
+        default: 'https://dev.restora.live'
+  workflow_call:
+    inputs:
+      require_authenticated:
+        description: 'Fail unless the signed-in Orders/Create Order journey runs'
+        type: boolean
+        required: false
+        default: false
+      api_url:
+        description: 'API environment used by the test APK'
+        type: string
+        required: false
+        default: 'https://dev.restora.live'
+    secrets:
+      RESTORA_E2E_EMAIL:
+        required: false
+      RESTORA_E2E_PASSWORD:
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-maestro-e2e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck, lint and repository rules
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile
+      - run: yarn verify
+
+  android:
+    name: Build and exercise Android app on emulator
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      CI: '1'
+      EXPO_PUBLIC_API_URL: ${{ inputs.api_url || vars.RESTORA_E2E_API_URL || 'https://dev.restora.live' }}
+      E2E_EMAIL: ${{ secrets.RESTORA_E2E_EMAIL }}
+      E2E_PASSWORD: ${{ secrets.RESTORA_E2E_PASSWORD }}
+      REQUIRE_AUTHENTICATED: ${{ inputs.require_authenticated || false }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: yarn
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile
+
+      - name: Validate test environment and credentials
+        run: |
+          set -euo pipefail
+          case "$EXPO_PUBLIC_API_URL" in
+            https://*) ;;
+            *) echo "::error::The E2E API URL must use HTTPS."; exit 1 ;;
+          esac
+          if [ "$REQUIRE_AUTHENTICATED" = "true" ] && { [ -z "$E2E_EMAIL" ] || [ -z "$E2E_PASSWORD" ]; }; then
+            echo "::error::Authenticated E2E is required. Set RESTORA_E2E_EMAIL and RESTORA_E2E_PASSWORD."
+            exit 1
+          fi
+
+      - name: Generate Android project
+        run: npx expo prebuild --platform android --non-interactive --clean
+
+      - name: Build debug APK for emulator
+        run: cd android && ./gradlew :app:assembleDebug --no-daemon '-Pexpo.inlineModules.watchedDirectories=[]'
+
+      - name: Run Maestro flows on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          E2E_EMAIL: ${{ secrets.RESTORA_E2E_EMAIL }}
+          E2E_PASSWORD: ${{ secrets.RESTORA_E2E_PASSWORD }}
+          REQUIRE_AUTHENTICATED: ${{ inputs.require_authenticated || false }}
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: |
+            set -euo pipefail
+            adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+            curl -Ls "https://get.maestro.mobile.dev" | bash
+            export PATH="$HOME/.maestro/bin:$PATH"
+            mkdir -p .maestro/results
+            maestro test --format JUNIT --output .maestro/results/guest-sign-in.xml --test-output-dir .maestro/results/guest .maestro/flows/guest-sign-in.yaml
+
+            if [ -n "$E2E_EMAIL" ] && [ -n "$E2E_PASSWORD" ]; then
+              maestro test --format JUNIT --output .maestro/results/authenticated-orders.xml --test-output-dir .maestro/results/authenticated .maestro/flows/authenticated-orders.yaml \
+                -e E2E_EMAIL="$E2E_EMAIL" \
+                -e E2E_PASSWORD="$E2E_PASSWORD"
+            elif [ "$REQUIRE_AUTHENTICATED" = "true" ]; then
+              echo "::error::Authenticated Maestro flow was required but credentials were not supplied."
+              exit 1
+            else
+              echo "::notice::Authenticated Maestro flow skipped; configure RESTORA_E2E_EMAIL and RESTORA_E2E_PASSWORD to enable it."
+            fi
+
+      - name: Upload APK and Maestro diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: restora-android-maestro-${{ github.run_number }}
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            .maestro/results
+          retention-days: 14
+          if-no-files-found: warn

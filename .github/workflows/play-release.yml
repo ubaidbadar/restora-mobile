@@ -23,7 +23,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  android-e2e:
+    uses: ./.github/workflows/mobile-e2e.yml
+    with:
+      require_authenticated: true
+      api_url: ${{ vars.EXPO_PUBLIC_API_URL || 'https://restora.live' }}
+    secrets: inherit
+
   release:
+    needs: android-e2e
     runs-on: ubuntu-latest
     env:
       AAB_PATH: android/app/build/outputs/bundle/release/app-release.aab
