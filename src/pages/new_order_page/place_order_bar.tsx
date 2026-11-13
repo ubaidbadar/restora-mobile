@@ -16,8 +16,8 @@ interface PlaceOrderBarProps extends FormComponentProps {
 export default function PlaceOrderBar({ control, loading, error, onSubmit, submitLabel }: PlaceOrderBarProps) {
   const space = useSafeSpace();
   const watched = useWatch({ control, name: [...ORDER_TOTAL_FIELDS] });
-  const taxByPaymentMethod = useAuthStore.getState().me!.workplace!.settings.taxByPaymentMethod;
-  const { totals, itemCount } = orderTotalsOf(watched, taxByPaymentMethod);
+  const settings = useAuthStore.getState().me!.workplace!.settings;
+  const { totals, itemCount } = orderTotalsOf(watched, settings.taxByPaymentMethod, settings.dineInServiceCharge);
 
   return (
     // A little above the home indicator or gesture bar, so the total and the button stay clear of the rounded corners.
