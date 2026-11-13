@@ -22,8 +22,8 @@ interface CartSheetProps extends FormComponentProps {
 export default function CartSheet({ editing, submitLabel, ...props }: CartSheetProps) {
   const watched = useWatch({ control: props.control, name: [...ORDER_TOTAL_FIELDS] });
   const space = useSafeSpace();
-  const taxByPaymentMethod = useAuthStore.getState().me!.workplace!.settings.taxByPaymentMethod;
-  const { totals, itemCount, type } = orderTotalsOf(watched, taxByPaymentMethod);
+  const settings = useAuthStore.getState().me!.workplace!.settings;
+  const { totals, itemCount, type } = orderTotalsOf(watched, settings.taxByPaymentMethod, settings.dineInServiceCharge);
 
   return (
     <Sheet
