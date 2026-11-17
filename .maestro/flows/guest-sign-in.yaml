@@ -1,0 +1,9 @@
+appId: app.restora.live
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Every order, every guest, one place."
+- tapOn: "Sign in"
+- assertVisible: "Welcome back to Restora."
+- assertVisible: "Email"
+- assertVisible: "Password"

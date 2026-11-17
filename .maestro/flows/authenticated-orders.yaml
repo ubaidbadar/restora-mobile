@@ -1,0 +1,18 @@
+appId: app.restora.live
+---
+- launchApp:
+    clearState: true
+- tapOn: "Sign in"
+- assertVisible: "Welcome back to Restora."
+- tapOn: "Email"
+- inputText: ${E2E_EMAIL}
+- tapOn: "Password"
+- inputText: ${E2E_PASSWORD}
+- tapOn: "Sign in"
+- extendedWaitUntil:
+    visible: "Orders"
+    timeout: 60000
+- tapOn: "New order"
+- extendedWaitUntil:
+    visible: "Add customer"
+    timeout: 30000
